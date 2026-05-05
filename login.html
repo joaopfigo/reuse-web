@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReUse | Login</title>
+  <style>
+    :root {
+      --bg: #f4f7f1;
+      --surface: #ffffff;
+      --text: #1f2a24;
+      --muted: #637066;
+      --primary: #2f7d5c;
+      --primary-dark: #235f46;
+      --accent: #d88b3d;
+      --border: #d7dfd8;
+      --shadow: 0 18px 45px rgba(31, 42, 36, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        linear-gradient(135deg, rgba(47, 125, 92, 0.10), rgba(216, 139, 61, 0.10)),
+        var(--bg);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    main {
+      width: min(980px, 100%);
+      min-height: 610px;
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .brand-panel {
+      background:
+        linear-gradient(rgba(31, 42, 36, 0.70), rgba(31, 42, 36, 0.62)),
+        url("https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=900&q=80");
+      background-size: cover;
+      background-position: center;
+      color: #fff;
+      padding: 42px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 32px;
+    }
+
+    .brand-name {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: 0;
+      margin: 0;
+    }
+
+    .brand-panel p {
+      max-width: 360px;
+      font-size: 1.05rem;
+      line-height: 1.55;
+      margin: 16px 0 0;
+    }
+
+    .impact-list {
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .impact-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+    }
+
+    .impact-list span {
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      flex: 0 0 auto;
+    }
+
+    .auth-panel {
+      padding: 42px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+
+    .tabs button {
+      border: 0;
+      padding: 13px 16px;
+      cursor: pointer;
+      background: #fff;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .tabs button.active {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 1.7rem;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 0 0 26px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    form {
+      display: grid;
+      gap: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    label {
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 12px;
+      font-size: 1rem;
+      color: var(--text);
+      background: #fff;
+    }
+
+    input:focus,
+    select:focus {
+      outline: 3px solid rgba(47, 125, 92, 0.18);
+      border-color: var(--primary);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-options {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .checkbox {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 400;
+    }
+
+    .checkbox input {
+      width: 16px;
+      min-height: 16px;
+      accent-color: var(--primary);
+    }
+
+    a {
+      color: var(--primary-dark);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .submit {
+      min-height: 48px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .submit:hover {
+      background: var(--primary-dark);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .notice {
+      margin-top: 18px;
+      padding: 13px 14px;
+      border-radius: 8px;
+      background: #f8fbf6;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 780px) {
+      body {
+        padding: 0;
+        display: block;
+        background: var(--surface);
+      }
+
+      main {
+        min-height: 100vh;
+        grid-template-columns: 1fr;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      .brand-panel {
+        min-height: 250px;
+        padding: 28px 22px;
+      }
+
+      .brand-name {
+        font-size: 2rem;
+      }
+
+      .auth-panel {
+        padding: 28px 22px 36px;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .form-options {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="brand-panel" aria-label="Apresentação do ReUse">
+      <div>
+        <h1 class="brand-name">ReUse</h1>
+        <p>Doações com mais organização, segurança e rastreabilidade para uma rede comunitária de mulheres em Belo Horizonte.</p>
+      </div>
+      <ul class="impact-list" aria-label="Benefícios da plataforma">
+        <li><span></span>Itens úteis circulando por mais tempo</li>
+        <li><span></span>Reservas com status e confirmação</li>
+        <li><span></span>Pontos para incentivar novas doações</li>
+      </ul>
+    </section>
+
+    <section class="auth-panel">
+      <nav class="tabs" aria-label="Alternar formulário">
+        <button class="active" type="button" data-target="login-form">Entrar</button>
+        <button type="button" data-target="register-form">Cadastrar</button>
+      </nav>
+
+      <form id="login-form">
+        <div>
+          <h2>Entrar na conta</h2>
+          <p class="subtitle">Acesse seus anúncios, reservas e saldo de pontos.</p>
+        </div>
+
+        <div class="field">
+          <label for="login-email">E-mail</label>
+          <input id="login-email" name="email" type="email" autocomplete="email" required>
+        </div>
+
+        <div class="field">
+          <label for="login-password">Senha</label>
+          <input id="login-password" name="senha" type="password" autocomplete="current-password" required>
+        </div>
+
+        <div class="form-options">
+          <label class="checkbox">
+            <input type="checkbox" name="lembrar">
+            Manter conectada
+          </label>
+          <a href="#">Esqueci minha senha</a>
+        </div>
+
+        <button class="submit" type="submit">Entrar</button>
+      </form>
+
+      <form id="register-form" class="hidden">
+        <div>
+          <h2>Criar cadastro</h2>
+          <p class="subtitle">Informe dados básicos para doar, reservar itens e acompanhar pontos.</p>
+        </div>
+
+        <div class="field">
+          <label for="register-name">Nome</label>
+          <input id="register-name" name="nome" type="text" autocomplete="name" required>
+        </div>
+
+        <div class="field">
+          <label for="register-email">E-mail</label>
+          <input id="register-email" name="email" type="email" autocomplete="email" required>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="register-password">Senha</label>
+            <input id="register-password" name="senha" type="password" autocomplete="new-password" minlength="8" required>
+          </div>
+          <div class="field">
+            <label for="register-neighborhood">Bairro</label>
+            <input id="register-neighborhood" name="bairro" type="text" autocomplete="address-level3" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="register-phone">Telefone</label>
+          <input id="register-phone" name="telefone" type="tel" autocomplete="tel">
+        </div>
+
+        <label class="checkbox">
+          <input type="checkbox" name="termos" required>
+          Aceito participar usando apenas localização aproximada e pontos da plataforma.
+        </label>
+
+        <button class="submit" type="submit">Criar conta</button>
+      </form>
+
+      <p class="notice">Protótipo estático: os formulários ainda precisam ser conectados ao back-end da API ReUse.</p>
+    </section>
+  </main>
+
+  <script>
+    const tabButtons = document.querySelectorAll(".tabs button");
+    const forms = document.querySelectorAll(".auth-panel form");
+
+    tabButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        tabButtons.forEach((item) => item.classList.remove("active"));
+        forms.forEach((form) => form.classList.add("hidden"));
+
+        button.classList.add("active");
+        document.getElementById(button.dataset.target).classList.remove("hidden");
+      });
+    });
+
+    forms.forEach((form) => {
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        alert("Tela pronta. Falta conectar este formulário à API.");
+      });
+    });
+  </script>
+</body>
+</html>
