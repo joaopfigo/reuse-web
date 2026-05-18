@@ -1,5 +1,9 @@
-# Código-fonte do projeto
+# Codigo-fonte
 
+A aplicacao do ReUse agora fica toda dentro de `src/`.
 
-Aqui devem ficar os arquivos-fonte do projeto: HTML, CSS, Javascript, imagens, e outros necessários para o 
-funcionamento do sistema.
+No XAMPP, usando a pasta `C:\xampp\htdocs\reuse`, a URL base fica:
+
+```text
+http://localhost:8080/reuse/src/
+```
