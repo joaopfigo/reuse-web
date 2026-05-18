@@ -1,3 +1,9 @@
-## Arquivo .sql
+## Banco de dados
 
-Adicione aqui os scripts SQL.
+O script atual do banco fica em:
+
+```text
+src/db/reuse_mysql.sql
+```
+
+Ele deve ser importado pelo phpMyAdmin.
