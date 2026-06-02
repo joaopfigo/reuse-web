@@ -6,6 +6,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
+require_once __DIR__ . '/flash.php';
 require_once __DIR__ . '/../repositories/UsuarioRepo.php';
 
 function app_url(string $path = ''): string
@@ -57,6 +58,13 @@ function exigir_login(): array
     if (!$usuario) {
         header('Location: ' . app_url('login.php'));
         exit;
+    }
+
+    // RF11: expirar reservas vencidas — uma vez por sessão
+    if (empty($_SESSION['expirou_reservas'])) {
+        require_once __DIR__ . '/../repositories/ReservaRepo.php';
+        ReservaRepo::expirarVencidas();
+        $_SESSION['expirou_reservas'] = true;
     }
 
     return $usuario;
