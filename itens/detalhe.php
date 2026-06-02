@@ -42,6 +42,7 @@ $item = ItemRepo::buscarPorId((int) ($_GET['id'] ?? 0));
                     <a class="btn secondary" href="editar.php?id=<?= (int) $item['id'] ?>">Editar meu anuncio</a>
                 <?php else: ?>
                     <a class="btn primary" href="../reservas/reservar.php?item_id=<?= (int) $item['id'] ?>">Reservar item</a>
+                    <a class="btn" href="../denuncias/reportar.php?item_id=<?= (int) $item['id'] ?>">Denunciar</a>
                 <?php endif; ?>
             </section>
         <?php endif; ?>

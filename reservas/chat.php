@@ -1,0 +1,92 @@
+<?php
+require_once __DIR__ . '/../app/helpers/auth.php';
+require_once __DIR__ . '/../app/helpers/layout.php';
+require_once __DIR__ . '/../app/repositories/ReservaRepo.php';
+require_once __DIR__ . '/../app/config/db.php';
+
+$usuario   = exigir_login();
+$reservaId = (int) ($_GET['id'] ?? 0);
+$reserva   = $reservaId > 0 ? ReservaRepo::buscarPorId($reservaId) : null;
+
+$ehReceptora = $reserva && (int) $reserva['receptora_id'] === (int) $usuario['id'];
+$ehDoadora   = $reserva && (int) $reserva['doadora_id']  === (int) $usuario['id'];
+
+if (!$reserva || (!$ehReceptora && !$ehDoadora)) {
+    flash_set('error', 'Acesso negado.');
+    header('Location: ' . app_url('reservas/minhas.php'));
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $mensagem = trim($_POST['mensagem'] ?? '');
+    if ($mensagem !== '') {
+        $stmt = db()->prepare(
+            'INSERT INTO chat_mensagens (reserva_id, remetente_id, mensagem)
+             VALUES (:reserva_id, :remetente_id, :mensagem)'
+        );
+        $stmt->execute([
+            ':reserva_id'   => $reservaId,
+            ':remetente_id' => $usuario['id'],
+            ':mensagem'     => $mensagem,
+        ]);
+    }
+    header('Location: ' . app_url('reservas/chat.php?id=' . $reservaId));
+    exit;
+}
+
+$stmt = db()->prepare(
+    'SELECT m.mensagem, m.criada_em, u.nome AS remetente, u.id AS remetente_id
+     FROM chat_mensagens m
+     JOIN usuarios u ON u.id = m.remetente_id
+     WHERE m.reserva_id = :reserva_id
+     ORDER BY m.criada_em ASC'
+);
+$stmt->execute([':reserva_id' => $reservaId]);
+$mensagens = $stmt->fetchAll();
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReUse | Chat</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <?php render_topbar($usuario); ?>
+    <main class="container">
+        <section class="panel stack">
+            <h1>Mensagens — <?= e($reserva['titulo']) ?></h1>
+            <p class="muted">
+                Doadora: <?= e($reserva['doadora_nome']) ?> |
+                Receptora: <?= e($reserva['receptora_nome']) ?>
+            </p>
+
+            <div style="max-height:400px; overflow-y:auto; display:flex; flex-direction:column; gap:.5rem; padding:.5rem 0">
+                <?php if (!$mensagens): ?>
+                    <p class="muted">Nenhuma mensagem ainda.</p>
+                <?php endif; ?>
+                <?php foreach ($mensagens as $m): ?>
+                    <?php $propria = (int) $m['remetente_id'] === (int) $usuario['id']; ?>
+                    <div style="align-self:<?= $propria ? 'flex-end' : 'flex-start' ?>;
+                                background:<?= $propria ? '#d4edda' : '#f1f1f1' ?>;
+                                padding:.5rem .75rem; border-radius:8px; max-width:75%">
+                        <strong><?= e($m['remetente']) ?></strong>
+                        <p style="margin:.25rem 0"><?= e($m['mensagem']) ?></p>
+                        <small class="muted"><?= e($m['criada_em']) ?></small>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+
+            <form method="post" class="form-card">
+                <label>
+                    <textarea name="mensagem" rows="2" required maxlength="500"
+                              placeholder="Sua mensagem..."></textarea>
+                </label>
+                <button type="submit" class="btn primary">Enviar</button>
+                <a href="<?= $ehDoadora ? 'gerenciar.php' : 'minhas.php' ?>" class="btn">Voltar</a>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

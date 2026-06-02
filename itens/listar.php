@@ -39,6 +39,8 @@ try {
             <h1>Itens</h1>
             <p class="muted">Busque e filtre itens disponiveis para reuso.</p>
 
+            <?= flash_html() ?>
+
             <?php if ($erroSistema): ?>
                 <div class="alert error"><?= e($erroSistema) ?></div>
             <?php endif; ?>
