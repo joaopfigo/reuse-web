@@ -1,0 +1,80 @@
+<?php
+require_once __DIR__ . '/app/helpers/auth.php';
+
+redirecionar_se_logado();
+
+$token    = trim($_GET['token'] ?? '');
+$erros    = [];
+$sucesso  = false;
+$tokenRow = null;
+
+if ($token) {
+    $stmt = db()->prepare(
+        'SELECT t.*, u.id AS usuario_id FROM tokens_senha t
+         JOIN usuarios u ON u.id = t.usuario_id
+         WHERE t.token = :token AND t.usado = 0 AND t.expira_em > NOW()'
+    );
+    $stmt->execute([':token' => $token]);
+    $tokenRow = $stmt->fetch();
+}
+
+if (!$tokenRow) {
+    $erros[] = 'Link inválido ou expirado. Solicite um novo em "Esqueci minha senha".';
+}
+
+if (!$erros && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $senha        = $_POST['senha'] ?? '';
+    $senhaConfirm = $_POST['senha_confirm'] ?? '';
+
+    if (strlen($senha) < 6) {
+        $erros[] = 'A senha deve ter no mínimo 6 caracteres.';
+    } elseif ($senha !== $senhaConfirm) {
+        $erros[] = 'As senhas não coincidem.';
+    } else {
+        db()->prepare('UPDATE usuarios SET senha_hash = :hash WHERE id = :id')
+            ->execute([':hash' => password_hash($senha, PASSWORD_DEFAULT), ':id' => $tokenRow['usuario_id']]);
+        db()->prepare('UPDATE tokens_senha SET usado = 1 WHERE token = :token')
+            ->execute([':token' => $token]);
+        $sucesso = true;
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReUse | Redefinir senha</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="auth-page">
+    <main class="auth-card">
+        <section class="auth-brand"><h1>ReUse</h1></section>
+
+        <?php if ($sucesso): ?>
+            <div class="alert success">Senha redefinida! <a href="login.php">Fazer login</a></div>
+        <?php else: ?>
+            <?php foreach ($erros as $erro): ?>
+                <div class="alert error"><?= e($erro) ?></div>
+            <?php endforeach; ?>
+
+            <?php if (!$erros): ?>
+                <form method="post" class="form-card">
+                    <h2>Nova senha</h2>
+                    <label>
+                        Nova senha (mínimo 6 caracteres)
+                        <input type="password" name="senha" required minlength="6">
+                    </label>
+                    <label>
+                        Confirmar nova senha
+                        <input type="password" name="senha_confirm" required minlength="6">
+                    </label>
+                    <button type="submit" class="btn primary">Salvar senha</button>
+                </form>
+            <?php else: ?>
+                <p class="links"><a href="esqueci-senha.php">Solicitar novo link</a></p>
+            <?php endif; ?>
+        <?php endif; ?>
+    </main>
+</body>
+</html>
