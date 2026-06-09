@@ -125,4 +125,54 @@ class ItemRepo
 
         return $stmt->rowCount() > 0;
     }
+
+    public static function meusItens(int $doadoraId): array
+    {
+        $sql = 'SELECT i.*, c.nome AS categoria, f.caminho AS foto
+                FROM itens i
+                JOIN categorias c ON c.id = i.categoria_id
+                LEFT JOIN item_fotos f ON f.item_id = i.id AND f.ordem = 1
+                WHERE i.doadora_id = :doadora_id AND i.status <> "cancelado"
+                ORDER BY i.criado_em DESC';
+
+        $stmt = db()->prepare($sql);
+        $stmt->execute([':doadora_id' => $doadoraId]);
+
+        return $stmt->fetchAll();
+    }
+
+    public static function pausar(int $id, int $doadoraId): bool
+    {
+        $stmt = db()->prepare(
+            'UPDATE itens SET status = "pausado", atualizado_em = NOW()
+             WHERE id = :id AND doadora_id = :doadora_id AND status = "disponivel"'
+        );
+        $stmt->execute([':id' => $id, ':doadora_id' => $doadoraId]);
+
+        return $stmt->rowCount() > 0;
+    }
+
+    public static function reativar(int $id, int $doadoraId): bool
+    {
+        $stmt = db()->prepare(
+            'UPDATE itens SET status = "disponivel", atualizado_em = NOW()
+             WHERE id = :id AND doadora_id = :doadora_id AND status = "pausado"'
+        );
+        $stmt->execute([':id' => $id, ':doadora_id' => $doadoraId]);
+
+        return $stmt->rowCount() > 0;
+    }
+
+    public static function excluir(int $id, int $doadoraId): bool
+    {
+        // Soft-delete: marca como cancelado, preservando o historico de
+        // reservas/pontos. So permite excluir itens nao reservados nem entregues.
+        $stmt = db()->prepare(
+            'UPDATE itens SET status = "cancelado", atualizado_em = NOW()
+             WHERE id = :id AND doadora_id = :doadora_id AND status IN ("disponivel","pausado")'
+        );
+        $stmt->execute([':id' => $id, ':doadora_id' => $doadoraId]);
+
+        return $stmt->rowCount() > 0;
+    }
 }

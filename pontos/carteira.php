@@ -19,17 +19,34 @@ $extrato = PontosRepo::extrato((int) $usuario['id']);
 
     <main class="container">
         <section class="panel stack">
-            <h1>Carteira de pontos</h1>
-            <p class="muted">Saldo atual: <strong><?= (int) $usuario['saldo_pontos'] ?> pontos</strong></p>
+            <div>
+                <p class="muted">Saldo atual</p>
+                <p class="saldo-destaque">
+                    <?= (int) $usuario['saldo_pontos'] ?>
+                    <small>pontos</small>
+                </p>
+            </div>
+
+            <hr class="divider">
+
+            <h2>Extrato</h2>
 
             <?php if (!$extrato): ?>
-                <p class="muted">Nenhuma movimentacao registrada.</p>
+                <p class="muted">Nenhuma movimentação registrada ainda.</p>
             <?php endif; ?>
 
-            <?php foreach ($extrato as $transacao): ?>
-                <article class="panel">
-                    <strong><?= e($transacao['tipo']) ?> de <?= (int) $transacao['quantidade'] ?> pontos</strong>
-                    <p class="muted"><?= e($transacao['motivo']) ?> | <?= e($transacao['criado_em']) ?></p>
+            <?php foreach ($extrato as $t): ?>
+                <article class="panel transacao <?= e($t['tipo']) ?>">
+                    <div class="transacao-icone">
+                        <?= $t['tipo'] === 'credito' ? '+' : '−' ?>
+                    </div>
+                    <div class="transacao-info">
+                        <p class="transacao-valor">
+                            <?= $t['tipo'] === 'credito' ? '+' : '−' ?><?= (int) $t['quantidade'] ?> pontos
+                        </p>
+                        <p class="muted"><?= e($t['motivo']) ?></p>
+                        <small class="muted"><?= e($t['criado_em']) ?></small>
+                    </div>
                 </article>
             <?php endforeach; ?>
         </section>

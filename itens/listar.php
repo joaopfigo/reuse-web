@@ -39,6 +39,8 @@ try {
             <h1>Itens</h1>
             <p class="muted">Busque e filtre itens disponiveis para reuso.</p>
 
+            <?= flash_html() ?>
+
             <?php if ($erroSistema): ?>
                 <div class="alert error"><?= e($erroSistema) ?></div>
             <?php endif; ?>
@@ -78,8 +80,30 @@ try {
         </aside>
 
         <section class="items-grid">
+            <?php
+            $temFiltro = $filtros['q'] !== '' || $filtros['categoria_id'] !== '' || $filtros['condicao'] !== '';
+            ?>
+
+            <?php if ($temFiltro): ?>
+                <div class="panel" style="grid-column: 1 / -1;">
+                    <p>
+                        <strong><?= count($itens) ?></strong> resultado(s)
+                        <?php if ($filtros['q'] !== ''): ?>
+                            para <strong>"<?= e($filtros['q']) ?>"</strong>
+                        <?php endif; ?>
+                        — <a href="listar.php">Limpar filtros</a>
+                    </p>
+                </div>
+            <?php endif; ?>
+
             <?php if (!$itens): ?>
-                <div class="panel">Nenhum item encontrado.</div>
+                <div class="panel">
+                    <?php if ($filtros['q'] !== ''): ?>
+                        Nenhum item encontrado para <strong>"<?= e($filtros['q']) ?>"</strong>. Tente outros termos ou limpe os filtros.
+                    <?php else: ?>
+                        Nenhum item disponível no momento.
+                    <?php endif; ?>
+                </div>
             <?php endif; ?>
 
             <?php foreach ($itens as $item): ?>

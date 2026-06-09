@@ -34,7 +34,7 @@ class UsuarioRepo
 
     public static function buscarPorId(int $id): ?array
     {
-        $stmt = db()->prepare('SELECT id, nome, email, telefone, bairro, cidade, saldo_pontos FROM usuarios WHERE id = :id AND ativo = 1');
+        $stmt = db()->prepare('SELECT id, nome, email, telefone, bairro, cidade, saldo_pontos, no_show_count, bloqueada_ate FROM usuarios WHERE id = :id AND ativo = 1');
         $stmt->execute([':id' => $id]);
         $usuario = $stmt->fetch();
 

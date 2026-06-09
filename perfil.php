@@ -34,6 +34,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php render_topbar($usuario); ?>
 
     <main class="container">
+        <?php if (!empty($usuario['bloqueada_ate']) && strtotime($usuario['bloqueada_ate']) > time()): ?>
+            <div class="panel" style="margin-bottom: 1rem;">
+                <div class="alert error">
+                    Sua conta está temporariamente bloqueada por não comparecimentos repetidos.
+                    A restrição é liberada em:
+                    <strong><?= e(date('d/m/Y \à\s H:i', strtotime($usuario['bloqueada_ate']))) ?></strong>.
+                    Durante este período não é possível fazer novas reservas.
+                </div>
+            </div>
+        <?php endif; ?>
+
         <form method="post" class="panel stack">
             <h1>Perfil</h1>
 

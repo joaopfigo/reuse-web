@@ -6,6 +6,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
+require_once __DIR__ . '/flash.php';
 require_once __DIR__ . '/../repositories/UsuarioRepo.php';
 
 function app_url(string $path = ''): string
@@ -16,14 +17,26 @@ function app_url(string $path = ''): string
         '/login.php',
         '/logout.php',
         '/cadastro.php',
+        '/esqueci-senha.php',
+        '/redefinir-senha.php',
         '/perfil.php',
         '/itens/listar.php',
         '/itens/detalhe.php',
         '/itens/criar.php',
         '/itens/editar.php',
+        '/itens/meus.php',
+        '/itens/acao.php',
         '/reservas/reservar.php',
         '/reservas/minhas.php',
+        '/reservas/gerenciar.php',
+        '/reservas/aceitar.php',
+        '/reservas/cancelar.php',
         '/reservas/confirmar.php',
+        '/reservas/noshow.php',
+        '/reservas/chat.php',
+        '/denuncias/reportar.php',
+        '/avaliacoes/avaliar.php',
+        '/notificacoes/index.php',
         '/pontos/carteira.php',
     ];
 
@@ -57,6 +70,13 @@ function exigir_login(): array
     if (!$usuario) {
         header('Location: ' . app_url('login.php'));
         exit;
+    }
+
+    // RF11: expirar reservas vencidas — uma vez por sessão
+    if (empty($_SESSION['expirou_reservas'])) {
+        require_once __DIR__ . '/../repositories/ReservaRepo.php';
+        ReservaRepo::expirarVencidas();
+        $_SESSION['expirou_reservas'] = true;
     }
 
     return $usuario;
