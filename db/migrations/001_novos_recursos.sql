@@ -1,16 +1,15 @@
--- src/db/migrations/001_novos_recursos.sql
+-- Execute este script em bancos ja existentes antes de publicar o codigo novo.
+-- Na Hostinger, remova ou ignore a linha USE e rode com o banco ja selecionado.
+
 USE reuse;
 
--- RF22 / RF28: bloqueio por no-show
 ALTER TABLE usuarios
-    ADD COLUMN no_show_count INT NOT NULL DEFAULT 0,
-    ADD COLUMN bloqueada_ate DATETIME NULL;
+    ADD COLUMN IF NOT EXISTS no_show_count INT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS bloqueada_ate DATETIME NULL;
 
--- RF15: código de confirmação gerado na criação da reserva
 ALTER TABLE reservas
-    ADD COLUMN codigo_confirmacao CHAR(6) NULL AFTER observacao;
+    ADD COLUMN IF NOT EXISTS codigo_confirmacao CHAR(6) NULL AFTER observacao;
 
--- RF03: tokens de recuperação de senha
 CREATE TABLE IF NOT EXISTS tokens_senha (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id  INT NOT NULL,
@@ -21,7 +20,6 @@ CREATE TABLE IF NOT EXISTS tokens_senha (
     CONSTRAINT fk_token_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- RF21: avaliações pós-entrega (1 avaliação por reserva por avaliadora)
 CREATE TABLE IF NOT EXISTS avaliacoes (
     id            INT AUTO_INCREMENT PRIMARY KEY,
     reserva_id    INT NOT NULL,
@@ -31,12 +29,11 @@ CREATE TABLE IF NOT EXISTS avaliacoes (
     comentario    TEXT,
     criada_em     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY uk_reserva_avaliadora (reserva_id, avaliadora_id),
-    CONSTRAINT fk_aval_reserva   FOREIGN KEY (reserva_id)    REFERENCES reservas(id),
+    CONSTRAINT fk_aval_reserva FOREIGN KEY (reserva_id) REFERENCES reservas(id),
     CONSTRAINT fk_aval_avaliadora FOREIGN KEY (avaliadora_id) REFERENCES usuarios(id),
-    CONSTRAINT fk_aval_avaliada   FOREIGN KEY (avaliada_id)   REFERENCES usuarios(id)
+    CONSTRAINT fk_aval_avaliada FOREIGN KEY (avaliada_id) REFERENCES usuarios(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- RF27: notificações internas
 CREATE TABLE IF NOT EXISTS notificacoes (
     id         INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT NOT NULL,
@@ -49,7 +46,6 @@ CREATE TABLE IF NOT EXISTS notificacoes (
     CONSTRAINT fk_notif_reserva FOREIGN KEY (reserva_id) REFERENCES reservas(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- RF25: denúncias
 CREATE TABLE IF NOT EXISTS denuncias (
     id             INT AUTO_INCREMENT PRIMARY KEY,
     denunciante_id INT NOT NULL,
@@ -62,13 +58,12 @@ CREATE TABLE IF NOT EXISTS denuncias (
     CONSTRAINT fk_den_denunciante FOREIGN KEY (denunciante_id) REFERENCES usuarios(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- RF14: chat básico por reserva
 CREATE TABLE IF NOT EXISTS chat_mensagens (
     id            INT AUTO_INCREMENT PRIMARY KEY,
     reserva_id    INT NOT NULL,
     remetente_id  INT NOT NULL,
     mensagem      TEXT NOT NULL,
     criada_em     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_chat_reserva   FOREIGN KEY (reserva_id)   REFERENCES reservas(id) ON DELETE CASCADE,
+    CONSTRAINT fk_chat_reserva FOREIGN KEY (reserva_id) REFERENCES reservas(id) ON DELETE CASCADE,
     CONSTRAINT fk_chat_remetente FOREIGN KEY (remetente_id) REFERENCES usuarios(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
