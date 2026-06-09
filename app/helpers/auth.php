@@ -9,6 +9,19 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 require_once __DIR__ . '/flash.php';
 require_once __DIR__ . '/../repositories/UsuarioRepo.php';
 
+function string_ends_with(string $haystack, string $needle): bool
+{
+    if ($needle === '') {
+        return true;
+    }
+
+    if (strlen($needle) > strlen($haystack)) {
+        return false;
+    }
+
+    return substr($haystack, -strlen($needle)) === $needle;
+}
+
 function app_url(string $path = ''): string
 {
     $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
@@ -42,7 +55,7 @@ function app_url(string $path = ''): string
 
     $base = '';
     foreach ($knownSuffixes as $suffix) {
-        if (str_ends_with($scriptName, $suffix)) {
+        if (string_ends_with($scriptName, $suffix)) {
             $base = substr($scriptName, 0, -strlen($suffix));
             break;
         }
