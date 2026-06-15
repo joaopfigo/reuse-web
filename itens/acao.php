@@ -3,11 +3,14 @@ require_once __DIR__ . '/../app/helpers/auth.php';
 require_once __DIR__ . '/../app/repositories/ItemRepo.php';
 
 $usuario = exigir_login();
-$id      = (int) ($_GET['id'] ?? 0);
-$acao    = $_GET['acao'] ?? '';
+exigir_post();
+validar_csrf_post();
+
+$id = (int) ($_POST['id'] ?? 0);
+$acao = (string) ($_POST['acao'] ?? '');
 
 $resultado = false;
-$msgOk     = '';
+$msgOk = '';
 
 switch ($acao) {
     case 'pausar':
@@ -31,7 +34,7 @@ switch ($acao) {
 if ($resultado) {
     flash_set('success', $msgOk);
 } else {
-    flash_set('error', 'Não foi possível concluir a ação. Anúncios reservados ou já entregues não podem ser pausados ou excluídos.');
+    flash_set('error', 'Não foi possível concluir a ação. Itens reservados ou já entregues não podem ser pausados ou excluídos.');
 }
 
 header('Location: ' . app_url('itens/meus.php'));

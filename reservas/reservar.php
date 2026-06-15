@@ -6,7 +6,10 @@ require_once __DIR__ . '/../app/repositories/NotificacaoRepo.php';
 require_once __DIR__ . '/../app/config/db.php';
 
 $usuario = exigir_login();
-$itemId  = (int) ($_GET['item_id'] ?? 0);
+exigir_post();
+validar_csrf_post();
+
+$itemId = (int) ($_POST['item_id'] ?? 0);
 
 if ($itemId <= 0) {
     header('Location: ' . app_url('itens/listar.php'));
@@ -27,14 +30,12 @@ if ((int) $item['doadora_id'] === (int) $usuario['id']) {
     exit;
 }
 
-// RF28: verificar bloqueio por no-show
 if (!empty($usuario['bloqueada_ate']) && strtotime($usuario['bloqueada_ate']) > time()) {
-    flash_set('error', 'Sua conta está temporariamente bloqueada por não comparecimento. Liberação em: ' . $usuario['bloqueada_ate']);
+    flash_set('error', 'Sua conta está temporariamente bloqueada por não comparecimento. Liberação em: ' . formatar_data_hora($usuario['bloqueada_ate']));
     header('Location: ' . app_url('itens/detalhe.php?id=' . $itemId));
     exit;
 }
 
-// RF22: verificar saldo de pontos
 if ((int) $usuario['saldo_pontos'] < (int) $item['pontos']) {
     flash_set('error', 'Saldo insuficiente. Você tem ' . $usuario['saldo_pontos'] . ' pontos e o item custa ' . $item['pontos'] . ' pontos.');
     header('Location: ' . app_url('itens/detalhe.php?id=' . $itemId));
@@ -61,7 +62,6 @@ try {
 
     $pdo->commit();
 
-    // RF27: notificar doadora
     NotificacaoRepo::criar(
         (int) $item['doadora_id'],
         'reserva',
@@ -69,10 +69,9 @@ try {
         $reservaId
     );
 
-    flash_set('success', 'Item reservado! Aguarde a doadora definir o local e horário de retirada.');
+    flash_set('success', 'Item reservado. Aguarde a doadora definir local e horário de retirada.');
     header('Location: ' . app_url('reservas/minhas.php'));
     exit;
-
 } catch (Throwable $e) {
     $pdo->rollBack();
     flash_set('error', 'Erro ao reservar. Tente novamente.');

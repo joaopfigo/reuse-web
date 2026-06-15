@@ -3,9 +3,9 @@ require_once __DIR__ . '/app/helpers/auth.php';
 
 redirecionar_se_logado();
 
-$token    = trim($_GET['token'] ?? '');
-$erros    = [];
-$sucesso  = false;
+$token = trim((string) ($_GET['token'] ?? ''));
+$erros = [];
+$sucesso = false;
 $tokenRow = null;
 
 if ($token) {
@@ -23,11 +23,12 @@ if (!$tokenRow) {
 }
 
 if (!$erros && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $senha        = $_POST['senha'] ?? '';
+    validar_csrf_post();
+    $senha = $_POST['senha'] ?? '';
     $senhaConfirm = $_POST['senha_confirm'] ?? '';
 
-    if (strlen($senha) < 6) {
-        $erros[] = 'A senha deve ter no mínimo 6 caracteres.';
+    if (strlen($senha) < 8) {
+        $erros[] = 'A senha deve ter no mínimo 8 caracteres.';
     } elseif ($senha !== $senhaConfirm) {
         $erros[] = 'As senhas não coincidem.';
     } else {
@@ -52,7 +53,7 @@ if (!$erros && $_SERVER['REQUEST_METHOD'] === 'POST') {
         <section class="auth-brand"><h1>ReUse</h1></section>
 
         <?php if ($sucesso): ?>
-            <div class="alert success">Senha redefinida! <a href="login.php">Fazer login</a></div>
+            <div class="alert success">Senha redefinida. <a href="login.php">Fazer login</a></div>
         <?php else: ?>
             <?php foreach ($erros as $erro): ?>
                 <div class="alert error"><?= e($erro) ?></div>
@@ -60,14 +61,15 @@ if (!$erros && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <?php if (!$erros): ?>
                 <form method="post" class="form-card">
+                    <?= csrf_input() ?>
                     <h2>Nova senha</h2>
                     <label>
-                        Nova senha (mínimo 6 caracteres)
-                        <input type="password" name="senha" required minlength="6">
+                        Nova senha (mínimo 8 caracteres)
+                        <input type="password" name="senha" required minlength="8">
                     </label>
                     <label>
                         Confirmar nova senha
-                        <input type="password" name="senha_confirm" required minlength="6">
+                        <input type="password" name="senha_confirm" required minlength="8">
                     </label>
                     <button type="submit" class="btn primary">Salvar senha</button>
                 </form>

@@ -4,13 +4,12 @@ require_once __DIR__ . '/../app/helpers/layout.php';
 require_once __DIR__ . '/../app/repositories/DenunciaRepo.php';
 require_once __DIR__ . '/../app/repositories/ReservaRepo.php';
 
-$usuario      = exigir_login();
-$itemId       = (int) ($_GET['item_id'] ?? 0);
-$reservaId    = (int) ($_GET['reserva_id'] ?? 0);
+$usuario = exigir_login();
+$itemId = (int) ($_GET['item_id'] ?? 0);
+$reservaId = (int) ($_GET['reserva_id'] ?? 0);
 $denunciadaId = (int) ($_GET['denunciada_id'] ?? 0);
-$erros        = [];
+$erros = [];
 
-// Quando vem de uma reserva, valida que a receptora é a usuária logada
 $reserva = null;
 if ($reservaId > 0) {
     $reserva = ReservaRepo::buscarPorId($reservaId);
@@ -23,12 +22,13 @@ if ($reservaId > 0) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $motivo           = $_POST['motivo'] ?? '';
-    $descricao        = trim($_POST['descricao'] ?? '');
-    $itemIdPost       = (int) ($_POST['item_id'] ?? 0);
-    $reservaIdPost    = (int) ($_POST['reserva_id'] ?? 0);
+    validar_csrf_post();
+    $motivo = (string) ($_POST['motivo'] ?? '');
+    $descricao = trim((string) ($_POST['descricao'] ?? ''));
+    $itemIdPost = (int) ($_POST['item_id'] ?? 0);
+    $reservaIdPost = (int) ($_POST['reserva_id'] ?? 0);
     $denunciadaIdPost = (int) ($_POST['denunciada_id'] ?? 0);
-    $validos          = ['item_falso', 'comportamento', 'no_show', 'outro'];
+    $validos = ['item_falso', 'comportamento', 'no_show', 'outro'];
 
     if (!in_array($motivo, $validos, true)) {
         $erros[] = 'Selecione um motivo válido.';
@@ -51,8 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $itemId       = $itemIdPost;
-    $reservaId    = $reservaIdPost;
+    $itemId = $itemIdPost;
+    $reservaId = $reservaIdPost;
     $denunciadaId = $denunciadaIdPost;
 }
 ?>
@@ -82,28 +82,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endforeach; ?>
 
             <form method="post" class="form-card">
-                <input type="hidden" name="item_id"        value="<?= (int) $itemId ?>">
-                <input type="hidden" name="reserva_id"     value="<?= (int) $reservaId ?>">
-                <input type="hidden" name="denunciada_id"  value="<?= (int) $denunciadaId ?>">
+                <?= csrf_input() ?>
+                <input type="hidden" name="item_id" value="<?= (int) $itemId ?>">
+                <input type="hidden" name="reserva_id" value="<?= (int) $reservaId ?>">
+                <input type="hidden" name="denunciada_id" value="<?= (int) $denunciadaId ?>">
 
                 <label>
                     Motivo
                     <select name="motivo" required>
                         <option value="">Selecione...</option>
-                        <option value="item_falso"    <?= ($_POST['motivo'] ?? '') === 'item_falso'    ? 'selected' : '' ?>>Item falso ou enganoso</option>
+                        <option value="item_falso" <?= ($_POST['motivo'] ?? '') === 'item_falso' ? 'selected' : '' ?>>Item falso ou enganoso</option>
                         <option value="comportamento" <?= ($_POST['motivo'] ?? '') === 'comportamento' ? 'selected' : '' ?>>Comportamento inadequado</option>
-                        <option value="no_show"       <?= ($_POST['motivo'] ?? '') === 'no_show'       ? 'selected' : '' ?>>Não compareceu ao encontro</option>
-                        <option value="outro"         <?= ($_POST['motivo'] ?? '') === 'outro'         ? 'selected' : '' ?>>Outro</option>
+                        <option value="no_show" <?= ($_POST['motivo'] ?? '') === 'no_show' ? 'selected' : '' ?>>Não compareceu ao encontro</option>
+                        <option value="outro" <?= ($_POST['motivo'] ?? '') === 'outro' ? 'selected' : '' ?>>Outro</option>
                     </select>
                 </label>
                 <label>
                     Descrição
-                    <textarea name="descricao" rows="4" required maxlength="500"
-                              placeholder="Descreva o que aconteceu..."><?= e($_POST['descricao'] ?? '') ?></textarea>
+                    <textarea name="descricao" rows="4" required maxlength="500" placeholder="Descreva o que aconteceu..."><?= e($_POST['descricao'] ?? '') ?></textarea>
                 </label>
 
-                <button type="submit" class="btn danger">Enviar denúncia</button>
-                <a href="javascript:history.back()" class="btn">Cancelar</a>
+                <div class="action-row">
+                    <button type="submit" class="btn danger">Enviar denúncia</button>
+                    <a href="javascript:history.back()" class="btn">Cancelar</a>
+                </div>
             </form>
         </section>
     </main>

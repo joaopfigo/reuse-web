@@ -5,16 +5,16 @@ require_once __DIR__ . '/app/repositories/UsuarioRepo.php';
 redirecionar_se_logado();
 
 $mensagem = '';
+$email = strtolower(trim((string) ($_POST['email'] ?? '')));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email   = strtolower(trim($_POST['email'] ?? ''));
+    validar_csrf_post();
     $usuario = $email ? UsuarioRepo::buscarPorEmail($email) : null;
 
     if ($usuario) {
-        $token  = bin2hex(random_bytes(32));
+        $token = bin2hex(random_bytes(32));
         $expira = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
-        // Invalidar tokens anteriores deste usuário
         db()->prepare('UPDATE tokens_senha SET usado = 1 WHERE usuario_id = :id AND usado = 0')
             ->execute([':id' => $usuario['id']]);
 
@@ -25,16 +25,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $protocolo = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $link = $protocolo . '://' . $_SERVER['HTTP_HOST'] . app_url('redefinir-senha.php') . '?token=' . $token;
 
-        // Tentar enviar e-mail (requer servidor SMTP configurado)
         @mail(
             $usuario['email'],
-            'ReUse — Redefinição de senha',
+            'ReUse - Redefinição de senha',
             "Clique no link para redefinir sua senha:\n\n{$link}\n\nO link expira em 1 hora.",
             'From: noreply@reuse.local'
         );
     }
 
-    // Mensagem genérica: não revela se o e-mail existe
     $mensagem = 'Se o e-mail estiver cadastrado, um link de redefinição foi enviado.';
 }
 ?>
@@ -58,9 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="post" class="form-card">
+            <?= csrf_input() ?>
             <label>
                 E-mail
-                <input type="email" name="email" required>
+                <input type="email" name="email" value="<?= e($email) ?>" required>
             </label>
             <button type="submit" class="btn primary">Enviar link</button>
             <p class="links"><a href="login.php">Voltar ao login</a></p>

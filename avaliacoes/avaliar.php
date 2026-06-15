@@ -5,9 +5,9 @@ require_once __DIR__ . '/../app/repositories/ReservaRepo.php';
 require_once __DIR__ . '/../app/repositories/AvaliacaoRepo.php';
 require_once __DIR__ . '/../app/repositories/NotificacaoRepo.php';
 
-$usuario   = exigir_login();
+$usuario = exigir_login();
 $reservaId = (int) ($_GET['reserva_id'] ?? 0);
-$reserva   = $reservaId > 0 ? ReservaRepo::buscarPorId($reservaId) : null;
+$reserva = $reservaId > 0 ? ReservaRepo::buscarPorId($reservaId) : null;
 
 if (!$reserva
     || (int) $reserva['receptora_id'] !== (int) $usuario['id']
@@ -27,8 +27,9 @@ if (AvaliacaoRepo::jaAvaliou($reservaId, (int) $usuario['id'])) {
 $erros = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nota       = (int) ($_POST['nota'] ?? 0);
-    $comentario = trim($_POST['comentario'] ?? '');
+    validar_csrf_post();
+    $nota = (int) ($_POST['nota'] ?? 0);
+    $comentario = trim((string) ($_POST['comentario'] ?? ''));
 
     if ($nota < 1 || $nota > 5) {
         $erros[] = 'Selecione uma nota de 1 a 5.';
@@ -50,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $reservaId
         );
 
-        flash_set('success', 'Avaliação registrada!');
+        flash_set('success', 'Avaliação registrada com sucesso.');
         header('Location: ' . app_url('reservas/minhas.php'));
         exit;
     }
@@ -68,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php render_topbar($usuario); ?>
     <main class="container">
         <section class="panel stack">
-            <h1>Avaliar entrega — <?= e($reserva['titulo']) ?></h1>
+            <h1>Avaliar entrega · <?= e($reserva['titulo']) ?></h1>
             <p class="muted">Doadora: <?= e($reserva['doadora_nome']) ?></p>
 
             <?php foreach ($erros as $erro): ?>
@@ -76,13 +77,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endforeach; ?>
 
             <form method="post" class="form-card">
+                <?= csrf_input() ?>
                 <label>
                     Nota
                     <select name="nota" required>
                         <option value="">Selecione...</option>
                         <?php for ($i = 1; $i <= 5; $i++): ?>
-                            <option value="<?= $i ?>"
-                                <?= ((int) ($_POST['nota'] ?? 0)) === $i ? 'selected' : '' ?>>
+                            <option value="<?= $i ?>" <?= ((int) ($_POST['nota'] ?? 0)) === $i ? 'selected' : '' ?>>
                                 <?= $i ?> ★
                             </option>
                         <?php endfor; ?>
@@ -92,8 +93,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     Comentário (opcional)
                     <textarea name="comentario" maxlength="300" rows="3"><?= e($_POST['comentario'] ?? '') ?></textarea>
                 </label>
-                <button type="submit" class="btn primary">Enviar avaliação</button>
-                <a href="../reservas/minhas.php" class="btn">Cancelar</a>
+                <div class="action-row">
+                    <button type="submit" class="btn primary">Enviar avaliação</button>
+                    <a href="../reservas/minhas.php" class="btn">Cancelar</a>
+                </div>
             </form>
         </section>
     </main>

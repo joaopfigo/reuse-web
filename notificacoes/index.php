@@ -4,7 +4,15 @@ require_once __DIR__ . '/../app/helpers/layout.php';
 require_once __DIR__ . '/../app/repositories/NotificacaoRepo.php';
 
 $usuario = exigir_login();
-NotificacaoRepo::marcarTodasLidas((int) $usuario['id']);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    validar_csrf_post();
+    NotificacaoRepo::marcarTodasLidas((int) $usuario['id']);
+    flash_set('success', 'Notificações marcadas como lidas.');
+    header('Location: ' . app_url('notificacoes/index.php'));
+    exit;
+}
+
 $notificacoes = NotificacaoRepo::listar((int) $usuario['id']);
 ?>
 <!DOCTYPE html>
@@ -19,16 +27,27 @@ $notificacoes = NotificacaoRepo::listar((int) $usuario['id']);
     <?php render_topbar($usuario); ?>
     <main class="container">
         <section class="panel stack">
-            <h1>Notificações</h1>
+            <div class="page-header">
+                <div>
+                    <h1>Notificações</h1>
+                    <p class="muted">Acompanhe respostas, confirmações e movimentos importantes da sua conta.</p>
+                </div>
+                <form method="post" class="inline-form">
+                    <?= csrf_input() ?>
+                    <button type="submit" class="btn secondary">Marcar todas como lidas</button>
+                </form>
+            </div>
+
+            <?= flash_html() ?>
 
             <?php if (!$notificacoes): ?>
-                <p class="muted">Sem notificações.</p>
+                <p class="muted empty-state">Sem notificações por enquanto.</p>
             <?php endif; ?>
 
             <?php foreach ($notificacoes as $n): ?>
                 <article class="panel <?= $n['lida'] ? 'muted' : '' ?>">
                     <p><?= e($n['mensagem']) ?></p>
-                    <small class="muted"><?= e($n['criada_em']) ?></small>
+                    <small class="muted"><?= e(formatar_data_hora($n['criada_em'])) ?></small>
                 </article>
             <?php endforeach; ?>
         </section>

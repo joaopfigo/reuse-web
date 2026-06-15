@@ -4,9 +4,9 @@ require_once __DIR__ . '/../app/helpers/layout.php';
 require_once __DIR__ . '/../app/repositories/ItemRepo.php';
 
 $filtros = [
-    'q' => trim($_GET['q'] ?? ''),
-    'categoria_id' => trim($_GET['categoria_id'] ?? ''),
-    'condicao' => trim($_GET['condicao'] ?? ''),
+    'q' => trim((string) ($_GET['q'] ?? '')),
+    'categoria_id' => trim((string) ($_GET['categoria_id'] ?? '')),
+    'condicao' => trim((string) ($_GET['condicao'] ?? '')),
 ];
 $erroSistema = '';
 $usuario = null;
@@ -20,6 +20,8 @@ try {
 } catch (Throwable $erroAplicacao) {
     $erroSistema = $erroAplicacao->getMessage();
 }
+
+$temFiltro = $filtros['q'] !== '' || $filtros['categoria_id'] !== '' || $filtros['condicao'] !== '';
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -35,9 +37,9 @@ try {
     <?php endif; ?>
 
     <main class="container layout">
-        <aside class="panel">
+        <aside class="panel stack">
             <h1>Itens</h1>
-            <p class="muted">Busque e filtre itens disponiveis para reuso.</p>
+            <p class="muted">Busque e filtre itens disponíveis para reuso.</p>
 
             <?= flash_html() ?>
 
@@ -64,7 +66,7 @@ try {
                 </label>
 
                 <label>
-                    Condicao
+                    Condição
                     <select name="condicao">
                         <option value="">Todas</option>
                         <option value="novo" <?= $filtros['condicao'] === 'novo' ? 'selected' : '' ?>>Novo</option>
@@ -74,16 +76,14 @@ try {
                     </select>
                 </label>
 
-                <button class="btn primary" type="submit">Buscar</button>
-                <a class="btn secondary" href="listar.php">Limpar</a>
+                <div class="action-row">
+                    <button class="btn primary" type="submit">Buscar</button>
+                    <a class="btn secondary" href="listar.php">Limpar</a>
+                </div>
             </form>
         </aside>
 
         <section class="items-grid">
-            <?php
-            $temFiltro = $filtros['q'] !== '' || $filtros['categoria_id'] !== '' || $filtros['condicao'] !== '';
-            ?>
-
             <?php if ($temFiltro): ?>
                 <div class="panel" style="grid-column: 1 / -1;">
                     <p>
@@ -91,13 +91,13 @@ try {
                         <?php if ($filtros['q'] !== ''): ?>
                             para <strong>"<?= e($filtros['q']) ?>"</strong>
                         <?php endif; ?>
-                        — <a href="listar.php">Limpar filtros</a>
+                        · <a href="listar.php">Limpar filtros</a>
                     </p>
                 </div>
             <?php endif; ?>
 
             <?php if (!$itens): ?>
-                <div class="panel">
+                <div class="panel empty-state">
                     <?php if ($filtros['q'] !== ''): ?>
                         Nenhum item encontrado para <strong>"<?= e($filtros['q']) ?>"</strong>. Tente outros termos ou limpe os filtros.
                     <?php else: ?>
@@ -117,10 +117,10 @@ try {
                     </div>
                     <div class="item-body">
                         <h2><?= e($item['titulo']) ?></h2>
-                        <p class="meta"><?= e($item['bairro']) ?> | Doadora: <?= e($item['doadora']) ?></p>
+                        <p class="meta"><?= e($item['bairro']) ?> · Doadora: <?= e($item['doadora']) ?></p>
                         <div class="badge-row">
                             <span class="badge"><?= e($item['categoria']) ?></span>
-                            <span class="badge"><?= e($item['condicao']) ?></span>
+                            <span class="badge"><?= e(status_label((string) $item['condicao'])) ?></span>
                             <span class="badge"><?= (int) $item['pontos'] ?> pontos</span>
                         </div>
                         <a href="detalhe.php?id=<?= (int) $item['id'] ?>">Ver detalhes</a>

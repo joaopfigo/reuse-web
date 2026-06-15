@@ -7,22 +7,30 @@ redirecionar_se_logado();
 
 $erro = '';
 $sucesso = '';
+$nome = trim((string) ($_POST['nome'] ?? ''));
+$email = trim((string) ($_POST['email'] ?? ''));
+$telefone = trim((string) ($_POST['telefone'] ?? ''));
+$bairro = trim((string) ($_POST['bairro'] ?? ''));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nome = trim($_POST['nome'] ?? '');
-    $email = trim($_POST['email'] ?? '');
+    validar_csrf_post();
     $senha = $_POST['senha'] ?? '';
-    $telefone = trim($_POST['telefone'] ?? '') ?: null;
-    $bairro = trim($_POST['bairro'] ?? '');
+    $telefoneRepo = $telefone !== '' ? $telefone : null;
 
     if (!$nome || !validar_email($email) || strlen($senha) < 8 || !$bairro) {
-        $erro = 'Preencha nome, e-mail valido, senha com 8 caracteres e bairro.';
+        $erro = 'Preencha nome, e-mail válido, senha com 8 caracteres e bairro.';
     } else {
         try {
-            AuthService::cadastrar($nome, $email, $senha, $telefone, $bairro);
-            $sucesso = 'Cadastro criado. Agora voce pode fazer login.';
+            AuthService::cadastrar($nome, $email, $senha, $telefoneRepo, $bairro);
+            $sucesso = 'Cadastro criado. Agora você pode fazer login.';
+            $nome = '';
+            $email = '';
+            $telefone = '';
+            $bairro = '';
         } catch (PDOException $e) {
-            $erro = 'Este e-mail ja esta cadastrado.';
+            $erro = ((string) $e->getCode() === '23000')
+                ? 'Este e-mail já está cadastrado.'
+                : 'Não foi possível concluir o cadastro agora.';
         }
     }
 }
@@ -39,11 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main class="auth-card">
         <section class="auth-brand">
             <h1>ReUse</h1>
-            <p>Crie sua conta para doar e encontrar itens disponiveis.</p>
+            <p>Crie sua conta para doar e encontrar itens disponíveis.</p>
         </section>
 
         <form method="post" class="form-card">
             <h2>Criar cadastro</h2>
+            <?= csrf_input() ?>
 
             <?php if ($erro): ?>
                 <div class="alert error"><?= e($erro) ?></div>
@@ -54,35 +63,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <label>
                 Nome
-                <input type="text" name="nome" required>
+                <input type="text" name="nome" value="<?= e($nome) ?>" autocomplete="name" required>
             </label>
 
             <label>
                 E-mail
-                <input type="email" name="email" required>
+                <input type="email" name="email" value="<?= e($email) ?>" autocomplete="email" required>
             </label>
 
             <div class="grid-2">
                 <label>
                     Senha
-                    <input type="password" name="senha" minlength="8" required>
+                    <input type="password" name="senha" minlength="8" autocomplete="new-password" required>
                 </label>
 
                 <label>
                     Bairro
-                    <input type="text" name="bairro" required>
+                    <input type="text" name="bairro" value="<?= e($bairro) ?>" autocomplete="address-level2" required>
                 </label>
             </div>
 
             <label>
                 Telefone
-                <input type="tel" name="telefone">
+                <input type="tel" name="telefone" value="<?= e($telefone) ?>" data-phone-mask autocomplete="tel">
             </label>
 
             <button type="submit" class="btn primary">Cadastrar</button>
 
             <p class="links">
-                <a href="login.php">Ja tenho conta</a>
+                <a href="login.php">Já tenho conta</a>
             </p>
         </form>
     </main>

@@ -4,9 +4,12 @@ require_once __DIR__ . '/../app/repositories/ReservaRepo.php';
 require_once __DIR__ . '/../app/repositories/NotificacaoRepo.php';
 require_once __DIR__ . '/../app/config/db.php';
 
-$usuario   = exigir_login();
-$reservaId = (int) ($_GET['id'] ?? 0);
-$reserva   = $reservaId > 0 ? ReservaRepo::buscarPorId($reservaId) : null;
+$usuario = exigir_login();
+exigir_post();
+validar_csrf_post();
+
+$reservaId = (int) ($_POST['id'] ?? 0);
+$reserva = $reservaId > 0 ? ReservaRepo::buscarPorId($reservaId) : null;
 
 if (!$reserva
     || (int) $reserva['doadora_id'] !== (int) $usuario['id']
@@ -47,8 +50,7 @@ try {
     }
 
     $pdo->commit();
-    flash_set('success', 'Não comparecimento registrado. O item voltou para disponível.');
-
+    flash_set('success', 'Não comparecimento registrado. O item voltou a ficar disponível.');
 } catch (Throwable $e) {
     $pdo->rollBack();
     flash_set('error', 'Erro ao registrar não comparecimento.');

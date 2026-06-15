@@ -25,12 +25,16 @@ function render_topbar(array $usuario): void
             <a href="<?= e(app_url('reservas/gerenciar.php')) ?>">Minhas doações</a>
             <a href="<?= e(app_url('reservas/minhas.php')) ?>">Minhas reservas</a>
             <a href="<?= e(app_url('pontos/carteira.php')) ?>">Pontos</a>
+            <a href="<?= e(app_url('impacto/painel.php')) ?>">Impacto</a>
             <a href="<?= e(app_url('notificacoes/index.php')) ?>">
                 Notificações<?php if ($naoLidas > 0): ?><span class="notif-badge"><?= $naoLidas ?></span><?php endif; ?>
             </a>
             <a href="<?= e(app_url('perfil.php')) ?>">Perfil</a>
             <span class="muted"><?= e($usuario['nome']) ?></span>
-            <a class="btn danger" href="<?= e(app_url('logout.php')) ?>">Sair</a>
+            <form method="post" action="<?= e(app_url('logout.php')) ?>" class="inline-form">
+                <?= csrf_input() ?>
+                <button class="btn danger" type="submit">Sair</button>
+            </form>
         </nav>
     </header>
     <script src="<?= e(app_url('assets/js/app.js')) ?>" defer></script>

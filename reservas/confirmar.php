@@ -5,9 +5,9 @@ require_once __DIR__ . '/../app/repositories/ReservaRepo.php';
 require_once __DIR__ . '/../app/repositories/NotificacaoRepo.php';
 require_once __DIR__ . '/../app/services/PontosService.php';
 
-$usuario   = exigir_login();
+$usuario = exigir_login();
 $reservaId = (int) ($_GET['id'] ?? 0);
-$reserva   = $reservaId > 0 ? ReservaRepo::buscarPorId($reservaId) : null;
+$reserva = $reservaId > 0 ? ReservaRepo::buscarPorId($reservaId) : null;
 
 if (!$reserva
     || (int) $reserva['receptora_id'] !== (int) $usuario['id']
@@ -19,14 +19,15 @@ if (!$reserva
 }
 
 $erros = [];
+$codigo = strtoupper(trim((string) ($_POST['codigo'] ?? '')));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $digitado = strtoupper(trim($_POST['codigo'] ?? ''));
+    validar_csrf_post();
 
-    if (!$digitado) {
+    if (!$codigo) {
         $erros[] = 'Digite o código fornecido pela doadora.';
-    } elseif ($digitado !== $reserva['codigo_confirmacao']) {
-        $erros[] = 'Código incorreto. Confirme com a doadora.';
+    } elseif ($codigo !== $reserva['codigo_confirmacao']) {
+        $erros[] = 'Código incorreto. Confirme novamente com a doadora.';
     } else {
         PontosService::confirmarEntrega($reservaId);
 
@@ -37,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $reservaId
         );
 
-        flash_set('success', 'Entrega confirmada! Pontos atualizados.');
+        flash_set('success', 'Entrega confirmada com sucesso. Os pontos já foram atualizados.');
         header('Location: ' . app_url('pontos/carteira.php'));
         exit;
     }
@@ -57,22 +58,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <section class="panel stack">
             <h1>Confirmar entrega</h1>
             <p>Item: <strong><?= e($reserva['titulo']) ?></strong></p>
-            <p class="muted">Peça o código de 6 caracteres para a doadora no momento da retirada.</p>
+            <p class="muted">Peça o código de 6 caracteres à doadora no momento da retirada.</p>
+
+            <div class="status-callout">
+                <strong>Local:</strong> <?= e((string) $reserva['local_retirada']) ?><br>
+                <strong>Data:</strong> <?= e(formatar_data_hora($reserva['data_retirada'])) ?>
+            </div>
 
             <?php foreach ($erros as $erro): ?>
                 <div class="alert error"><?= e($erro) ?></div>
             <?php endforeach; ?>
 
             <form method="post" class="form-card">
+                <?= csrf_input() ?>
                 <label>
                     Código de confirmação
                     <input type="text" name="codigo" maxlength="6" required
                            placeholder="Ex.: A3F9B2"
                            style="text-transform:uppercase; letter-spacing:.15em"
-                           value="<?= e($_POST['codigo'] ?? '') ?>">
+                           value="<?= e($codigo) ?>">
                 </label>
-                <button type="submit" class="btn primary">Confirmar</button>
-                <a href="minhas.php" class="btn">Voltar</a>
+                <div class="action-row">
+                    <button type="submit" class="btn primary">Confirmar</button>
+                    <a href="minhas.php" class="btn">Voltar</a>
+                </div>
             </form>
         </section>
     </main>
