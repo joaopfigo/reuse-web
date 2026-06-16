@@ -33,69 +33,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Perfil</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css?v=20260615">
 </head>
 <body>
     <?php render_topbar($usuario); ?>
 
-    <main class="container dashboard-shell">
-        <section class="dashboard-hero dashboard-hero-profile">
-            <div class="dashboard-hero-copy">
-                <span class="eyebrow">Conta</span>
+    <main class="container dash-page">
+        <section class="hero-card">
+            <div class="hero-main">
+                <span class="hero-tag">Conta</span>
                 <h1><?= e($usuario['nome']) ?></h1>
                 <p>Gerencie seus dados, acompanhe sua reputação na comunidade e veja como sua participação evolui ao longo das entregas.</p>
             </div>
 
-            <div class="hero-aside">
-                <div class="hero-chip">
-                    <span class="hero-chip-label">Base atual</span>
+            <div class="hero-side">
+                <div class="hero-pill">
+                    <span>Base atual</span>
                     <strong><?= e($usuario['bairro']) ?>, <?= e($usuario['cidade']) ?></strong>
                 </div>
-                <div class="hero-chip">
-                    <span class="hero-chip-label">Conta ativa</span>
+                <div class="hero-pill">
+                    <span>Conta ativa</span>
                     <strong>Pronta para doar e reservar</strong>
                 </div>
             </div>
         </section>
 
         <?php if (!empty($usuario['bloqueada_ate']) && strtotime($usuario['bloqueada_ate']) > time()): ?>
-            <div class="alert error dashboard-alert">
+            <div class="alert error">
                 Sua conta está temporariamente bloqueada por não comparecimentos repetidos. A restrição será liberada em
                 <strong><?= e(formatar_data_hora($usuario['bloqueada_ate'])) ?></strong>.
             </div>
         <?php endif; ?>
 
-        <section class="metric-grid metric-grid-profile">
-            <article class="metric-card metric-card-accent">
-                <span class="metric-kicker">Saldo atual</span>
-                <strong class="metric-value"><?= (int) $usuario['saldo_pontos'] ?></strong>
-                <span class="metric-unit">pontos disponíveis</span>
-                <p class="metric-note">Use sua carteira para acompanhar o que já entrou em cada entrega confirmada.</p>
+        <section class="stats-grid">
+            <article class="stat-card featured">
+                <span class="stat-label">Saldo atual</span>
+                <strong class="stat-value"><?= (int) $usuario['saldo_pontos'] ?></strong>
+                <span class="stat-unit">pontos disponíveis</span>
+                <p class="stat-note">Use sua carteira para acompanhar o que já entrou em cada entrega confirmada.</p>
             </article>
 
-            <article class="metric-card">
-                <span class="metric-kicker">Avaliação média</span>
-                <strong class="metric-value">
-                    <?= $mediaAvaliacao !== null ? e(number_format($mediaAvaliacao, 1, ',', '.')) : '--' ?>
-                </strong>
-                <span class="metric-unit"><?= $mediaAvaliacao !== null ? 'de 5,0' : 'ainda sem avaliações' ?></span>
-                <p class="metric-note">As avaliações aparecem depois que as entregas são concluídas e confirmadas.</p>
+            <article class="stat-card">
+                <span class="stat-label">Avaliação média</span>
+                <strong class="stat-value"><?= $mediaAvaliacao !== null ? e(number_format($mediaAvaliacao, 1, ',', '.')) : '--' ?></strong>
+                <span class="stat-unit"><?= $mediaAvaliacao !== null ? 'de 5,0' : 'ainda sem avaliações' ?></span>
+                <p class="stat-note">As avaliações aparecem depois que as entregas são concluídas e confirmadas.</p>
             </article>
 
-            <article class="metric-card">
-                <span class="metric-kicker">Não comparecimentos</span>
-                <strong class="metric-value"><?= (int) ($usuario['no_show_count'] ?? 0) ?></strong>
-                <span class="metric-unit">registro(s)</span>
-                <p class="metric-note">Mantemos esse histórico para incentivar combinações claras e encontros em local público.</p>
+            <article class="stat-card">
+                <span class="stat-label">Não comparecimentos</span>
+                <strong class="stat-value"><?= (int) ($usuario['no_show_count'] ?? 0) ?></strong>
+                <span class="stat-unit">registro(s)</span>
+                <p class="stat-note">Esse histórico ajuda a manter combinações claras e encontros mais seguros.</p>
             </article>
         </section>
 
-        <section class="profile-layout">
-            <form method="post" class="panel profile-form-panel stack">
-                <div class="section-heading">
-                    <div>
-                        <span class="eyebrow">Dados pessoais</span>
-                        <h2>Informações da conta</h2>
-                    </div>
+        <section class="dash-columns">
+            <form method="post" class="dash-panel profile-form-grid">
+                <div class="section-intro">
+                    <span class="section-kicker">Dados pessoais</span>
+                    <h2 class="section-title">Informações da conta</h2>
+                    <p class="section-copy">Atualize apenas os dados que ajudam a organizar suas doações e retiradas com segurança.</p>
                 </div>
 
                 <?= csrf_input() ?>
@@ -132,40 +130,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </form>
 
-            <aside class="profile-side-panel">
-                <section class="panel stack">
-                    <div class="section-heading">
-                        <div>
-                            <span class="eyebrow">Visão rápida</span>
-                            <h2>Sua presença no ReUse</h2>
-                        </div>
+            <aside class="dash-stack">
+                <section class="dash-panel">
+                    <div class="section-intro">
+                        <span class="section-kicker">Visão rápida</span>
+                        <h2 class="section-title">Sua presença no ReUse</h2>
                     </div>
 
-                    <div class="info-list">
-                        <div class="info-row">
+                    <div class="info-grid">
+                        <div class="info-item">
                             <span>E-mail</span>
                             <strong><?= e($usuario['email']) ?></strong>
                         </div>
-                        <div class="info-row">
+                        <div class="info-item">
                             <span>Localidade</span>
                             <strong><?= e($usuario['bairro']) ?>, <?= e($usuario['cidade']) ?></strong>
                         </div>
-                        <div class="info-row">
+                        <div class="info-item">
                             <span>Telefone</span>
                             <strong><?= $usuario['telefone'] ? e($usuario['telefone']) : 'Não informado' ?></strong>
                         </div>
                     </div>
                 </section>
 
-                <section class="panel stack">
-                    <div class="section-heading">
-                        <div>
-                            <span class="eyebrow">Boas práticas</span>
-                            <h2>Segurança e confiança</h2>
-                        </div>
+                <section class="dash-panel">
+                    <div class="section-intro">
+                        <span class="section-kicker">Boas práticas</span>
+                        <h2 class="section-title">Segurança e confiança</h2>
                     </div>
 
-                    <ul class="insight-list">
+                    <ul class="insight-list clean">
                         <li>Compartilhe apenas bairro e local público para retirada.</li>
                         <li>Use o chat para alinhar o encontro antes da confirmação.</li>
                         <li>Finalize a entrega com o código de confirmação para atualizar os pontos.</li>
