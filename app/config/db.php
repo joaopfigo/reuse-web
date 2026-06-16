@@ -12,11 +12,27 @@ function db_config(): array
         'password' => '',
     ];
 
-    $arquivoCredenciais = __DIR__ . '/db.credentials.php';
-    if (is_file($arquivoCredenciais)) {
-        $credenciais = require $arquivoCredenciais;
-        if (is_array($credenciais)) {
-            $config = array_merge($config, array_filter($credenciais, static fn ($valor) => $valor !== null && $valor !== ''));
+    $arquivosCredenciais = [
+        dirname(__DIR__, 3) . '/private_config/db.credentials.php',
+        __DIR__ . '/db.credentials.php',
+    ];
+
+    foreach ($arquivosCredenciais as $arquivoCredenciais) {
+        if (is_readable($arquivoCredenciais)) {
+            try {
+                $credenciais = require $arquivoCredenciais;
+            } catch (Throwable $erroCredenciais) {
+                continue;
+            }
+
+            if (is_array($credenciais)) {
+                foreach ($credenciais as $chave => $valor) {
+                    if ($valor !== null && $valor !== '') {
+                        $config[$chave] = $valor;
+                    }
+                }
+            }
+            break;
         }
     }
 
