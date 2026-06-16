@@ -24,48 +24,33 @@ function string_ends_with(string $haystack, string $needle): bool
 
 function app_url(string $path = ''): string
 {
-    $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
-    $knownSuffixes = [
-        '/index.php',
-        '/login.php',
-        '/logout.php',
-        '/cadastro.php',
-        '/esqueci-senha.php',
-        '/redefinir-senha.php',
-        '/perfil.php',
-        '/itens/listar.php',
-        '/itens/detalhe.php',
-        '/itens/criar.php',
-        '/itens/editar.php',
-        '/itens/meus.php',
-        '/itens/acao.php',
-        '/reservas/reservar.php',
-        '/reservas/minhas.php',
-        '/reservas/gerenciar.php',
-        '/reservas/aceitar.php',
-        '/reservas/cancelar.php',
-        '/reservas/confirmar.php',
-        '/reservas/noshow.php',
-        '/reservas/chat.php',
-        '/denuncias/reportar.php',
-        '/avaliacoes/avaliar.php',
-        '/notificacoes/index.php',
-        '/impacto/painel.php',
-        '/pontos/carteira.php',
+    $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
+    $scriptDir = $scriptDir === '.' ? '' : rtrim($scriptDir, '/');
+
+    $subpastasDaAplicacao = [
+        '/itens',
+        '/reservas',
+        '/pontos',
+        '/notificacoes',
+        '/denuncias',
+        '/avaliacoes',
+        '/impacto',
     ];
 
-    $base = '';
-    foreach ($knownSuffixes as $suffix) {
-        if (string_ends_with($scriptName, $suffix)) {
-            $base = substr($scriptName, 0, -strlen($suffix));
+    foreach ($subpastasDaAplicacao as $subpasta) {
+        if (string_ends_with($scriptDir, $subpasta)) {
+            $scriptDir = substr($scriptDir, 0, -strlen($subpasta));
             break;
         }
     }
 
-    $base = rtrim($base, '/');
+    if ($scriptDir === '/' || $scriptDir === false) {
+        $scriptDir = '';
+    }
+
     $suffix = ltrim($path, '/');
 
-    return $suffix === '' ? $base : $base . '/' . $suffix;
+    return $suffix === '' ? $scriptDir : $scriptDir . '/' . $suffix;
 }
 
 function usuario_logado(): ?array
@@ -121,7 +106,6 @@ function exigir_login(): array
         exit;
     }
 
-    // RF11: expira reservas pendentes vencidas apenas uma vez por sessão.
     if (empty($_SESSION['expirou_reservas'])) {
         require_once __DIR__ . '/../repositories/ReservaRepo.php';
         ReservaRepo::expirarVencidas();

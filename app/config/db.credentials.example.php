@@ -1,5 +1,8 @@
 <?php
 
+// Na Hostinger, mantenha o arquivo real fora de public_html em:
+// private_config/db.credentials.php
+
 return [
     'host' => 'localhost',
     'port' => '3306',
