@@ -52,44 +52,53 @@ $mensagens = $stmt->fetchAll();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Chat</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/experience.css?v=20260615">
 </head>
 <body>
     <?php render_topbar($usuario); ?>
-    <main class="container">
-        <section class="panel stack">
-            <div class="page-header">
-                <div>
-                    <h1>Mensagens · <?= e($reserva['titulo']) ?></h1>
-                    <p class="muted">
-                        Doadora: <?= e($reserva['doadora_nome']) ?> ·
-                        Receptora: <?= e($reserva['receptora_nome']) ?>
-                    </p>
+    <main class="container ops-page">
+        <section class="ops-hero compact">
+            <div class="ops-hero-main">
+                <span class="ops-kicker">Conversa da reserva</span>
+                <h1 class="ops-title"><?= e($reserva['titulo']) ?></h1>
+                <p class="ops-copy">Use o chat para alinhar detalhes da retirada com objetividade e manter o histórico da conversa no sistema.</p>
+            </div>
+            <div class="ops-hero-side">
+                <a href="<?= $ehDoadora ? 'gerenciar.php' : 'minhas.php' ?>" class="btn secondary">Voltar</a>
+            </div>
+        </section>
+
+        <section class="chat-shell">
+            <div class="surface-panel chat-panel">
+                <div class="section-header">
+                    <h2>Mensagens</h2>
+                    <p>Doadora: <?= e($reserva['doadora_nome']) ?> · Receptora: <?= e($reserva['receptora_nome']) ?></p>
                 </div>
-                <a href="<?= $ehDoadora ? 'gerenciar.php' : 'minhas.php' ?>" class="btn">Voltar</a>
+
+                <div class="chat-toolbar muted">Mantenha a conversa focada em local, horário e confirmação da retirada.</div>
+
+                <div class="chat-messages" data-auto-refresh>
+                    <?php if (!$mensagens): ?>
+                        <p class="muted empty-state">Nenhuma mensagem ainda.</p>
+                    <?php endif; ?>
+                    <?php foreach ($mensagens as $m): ?>
+                        <?php $propria = (int) $m['remetente_id'] === (int) $usuario['id']; ?>
+                        <div class="msg <?= $propria ? 'msg-own' : 'msg-other' ?>">
+                            <span class="msg-sender"><?= e($m['remetente']) ?></span>
+                            <span class="msg-text"><?= e($m['mensagem']) ?></span>
+                            <span class="msg-time"><?= e(formatar_data_hora($m['criada_em'])) ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
 
-            <div class="chat-toolbar muted">Use o chat para alinhar detalhes rápidos sobre a retirada do item.</div>
-
-            <div class="chat-messages" data-auto-refresh>
-                <?php if (!$mensagens): ?>
-                    <p class="muted empty-state">Nenhuma mensagem ainda.</p>
-                <?php endif; ?>
-                <?php foreach ($mensagens as $m): ?>
-                    <?php $propria = (int) $m['remetente_id'] === (int) $usuario['id']; ?>
-                    <div class="msg <?= $propria ? 'msg-own' : 'msg-other' ?>">
-                        <span class="msg-sender"><?= e($m['remetente']) ?></span>
-                        <span class="msg-text"><?= e($m['mensagem']) ?></span>
-                        <span class="msg-time"><?= e(formatar_data_hora($m['criada_em'])) ?></span>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-
-            <form method="post" class="form-card">
+            <form method="post" class="surface-panel chat-composer">
                 <?= csrf_input() ?>
                 <label>
-                    <textarea name="mensagem" rows="2" required maxlength="500" placeholder="Escreva sua mensagem..."></textarea>
+                    Mensagem
+                    <textarea name="mensagem" rows="3" required maxlength="500" placeholder="Escreva sua mensagem..."></textarea>
                 </label>
-                <div class="action-row">
+                <div class="list-card-actions">
                     <button type="submit" class="btn primary">Enviar</button>
                     <a href="<?= $ehDoadora ? 'gerenciar.php' : 'minhas.php' ?>" class="btn">Voltar</a>
                 </div>

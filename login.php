@@ -33,16 +33,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Login</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/experience.css?v=20260615">
 </head>
 <body class="auth-page">
-    <main class="auth-card">
-        <section class="auth-brand">
-            <h1>ReUse</h1>
-            <p>Entre para cadastrar itens, consultar doações e acompanhar seus pontos.</p>
+    <main class="auth-shell">
+        <section class="auth-showcase">
+            <span class="hero-tag">Rede de reuso</span>
+            <h1>Organize doações com clareza, confiança e rastreabilidade.</h1>
+            <p>Entre na sua conta para acompanhar itens publicados, reservas em andamento, pontos e interações da comunidade em um só lugar.</p>
+
+            <div class="auth-feature-list">
+                <div class="auth-feature">
+                    <strong>Fluxo completo</strong>
+                    <span>Do anúncio à confirmação da entrega com atualização automática de pontos.</span>
+                </div>
+                <div class="auth-feature">
+                    <strong>Mais organização</strong>
+                    <span>Feed, reservas, notificações e histórico reunidos em uma experiência mais clara.</span>
+                </div>
+            </div>
         </section>
 
-        <form method="post" class="form-card">
-            <h2>Entrar</h2>
+        <form method="post" class="auth-panel">
+            <div class="section-header">
+                <h2>Entrar</h2>
+                <p>Acesse sua conta para continuar cuidando das suas doações e reservas.</p>
+            </div>
+
             <?= csrf_input() ?>
 
             <?php if ($erro): ?>
@@ -61,10 +78,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <button type="submit" class="btn primary">Entrar</button>
 
-            <p class="links">
-                <a href="cadastro.php">Criar cadastro</a> |
+            <div class="auth-links">
+                <a href="cadastro.php">Criar cadastro</a>
                 <a href="esqueci-senha.php">Esqueci minha senha</a>
-            </p>
+            </div>
         </form>
     </main>
 </body>

@@ -52,73 +52,105 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Cadastrar item</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/experience.css?v=20260615">
 </head>
 <body>
     <?php render_topbar($usuario); ?>
 
-    <main class="container">
-        <form method="post" enctype="multipart/form-data" class="panel stack">
-            <h1>Cadastrar item</h1>
-            <p class="muted">Informe apenas a região ou bairro aproximado, nunca o endereço completo.</p>
-            <?= csrf_input() ?>
-
-            <?php if ($erro): ?><div class="alert error"><?= e($erro) ?></div><?php endif; ?>
-            <?php if ($sucesso): ?><div class="alert success"><?= e($sucesso) ?></div><?php endif; ?>
-
-            <div class="grid-2">
-                <label>
-                    Título
-                    <input type="text" name="titulo" value="<?= e($dados['titulo']) ?>" required>
-                </label>
-
-                <label>
-                    Pontos
-                    <input type="number" name="pontos" min="1" value="<?= (int) $dados['pontos'] ?>" required>
-                </label>
+    <main class="container ops-page">
+        <section class="ops-hero compact">
+            <div class="ops-hero-main">
+                <span class="ops-kicker">Nova publicação</span>
+                <h1 class="ops-title">Cadastrar item</h1>
+                <p class="ops-copy">Prepare uma publicação clara, objetiva e segura para facilitar a reserva e a retirada do item.</p>
             </div>
+        </section>
 
-            <label>
-                Descrição
-                <textarea name="descricao" required><?= e($dados['descricao']) ?></textarea>
-                <small class="muted">Conte o estado do item, tamanho, marca ou qualquer detalhe útil para a retirada.</small>
-            </label>
+        <section class="form-layout">
+            <form method="post" enctype="multipart/form-data" class="form-main">
+                <section class="surface-panel">
+                    <div class="section-header">
+                        <h2>Informações do item</h2>
+                        <p>Informe somente os dados que ajudam a comunidade a entender o estado do item e a organizar a retirada.</p>
+                    </div>
 
-            <div class="grid-2">
-                <label>
-                    Categoria
-                    <select name="categoria_id" required>
-                        <?php foreach ($categorias as $categoria): ?>
-                            <option value="<?= (int) $categoria['id'] ?>" <?= (int) $categoria['id'] === (int) $dados['categoria_id'] ? 'selected' : '' ?>>
-                                <?= e($categoria['nome']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </label>
+                    <?= csrf_input() ?>
 
-                <label>
-                    Condição
-                    <select name="condicao" required>
-                        <option value="novo" <?= $dados['condicao'] === 'novo' ? 'selected' : '' ?>>Novo</option>
-                        <option value="seminovo" <?= $dados['condicao'] === 'seminovo' ? 'selected' : '' ?>>Seminovo</option>
-                        <option value="usado_bom" <?= $dados['condicao'] === 'usado_bom' ? 'selected' : '' ?>>Usado em bom estado</option>
-                        <option value="usado_regular" <?= $dados['condicao'] === 'usado_regular' ? 'selected' : '' ?>>Usado regular</option>
-                    </select>
-                </label>
-            </div>
+                    <?php if ($erro): ?><div class="alert error"><?= e($erro) ?></div><?php endif; ?>
+                    <?php if ($sucesso): ?><div class="alert success"><?= e($sucesso) ?></div><?php endif; ?>
 
-            <label>
-                Bairro aproximado
-                <input type="text" name="bairro" value="<?= e($dados['bairro']) ?>" required>
-            </label>
+                    <div class="grid-2">
+                        <label>
+                            Título
+                            <input type="text" name="titulo" value="<?= e($dados['titulo']) ?>" required>
+                        </label>
 
-            <label>
-                Foto do item (JPG, PNG ou WEBP até 2 MB)
-                <input type="file" name="foto" accept="image/jpeg,image/png,image/webp" data-image-preview-input>
-            </label>
-            <div class="image-preview" data-image-preview hidden></div>
+                        <label>
+                            Pontos
+                            <input type="number" name="pontos" min="1" value="<?= (int) $dados['pontos'] ?>" required>
+                        </label>
+                    </div>
 
-            <button class="btn primary" type="submit">Publicar</button>
-        </form>
+                    <label>
+                        Descrição
+                        <textarea name="descricao" required><?= e($dados['descricao']) ?></textarea>
+                        <small class="muted">Conte o estado do item, tamanho, marca ou qualquer detalhe útil para a retirada.</small>
+                    </label>
+
+                    <div class="grid-2">
+                        <label>
+                            Categoria
+                            <select name="categoria_id" required>
+                                <?php foreach ($categorias as $categoria): ?>
+                                    <option value="<?= (int) $categoria['id'] ?>" <?= (int) $categoria['id'] === (int) $dados['categoria_id'] ? 'selected' : '' ?>>
+                                        <?= e($categoria['nome']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </label>
+
+                        <label>
+                            Condição
+                            <select name="condicao" required>
+                                <option value="novo" <?= $dados['condicao'] === 'novo' ? 'selected' : '' ?>>Novo</option>
+                                <option value="seminovo" <?= $dados['condicao'] === 'seminovo' ? 'selected' : '' ?>>Seminovo</option>
+                                <option value="usado_bom" <?= $dados['condicao'] === 'usado_bom' ? 'selected' : '' ?>>Usado em bom estado</option>
+                                <option value="usado_regular" <?= $dados['condicao'] === 'usado_regular' ? 'selected' : '' ?>>Usado regular</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <label>
+                        Bairro aproximado
+                        <input type="text" name="bairro" value="<?= e($dados['bairro']) ?>" required>
+                    </label>
+
+                    <label>
+                        Foto do item (JPG, PNG ou WEBP até 2 MB)
+                        <input type="file" name="foto" accept="image/jpeg,image/png,image/webp" data-image-preview-input>
+                    </label>
+                    <div class="image-preview" data-image-preview hidden></div>
+
+                    <div class="list-card-actions">
+                        <button class="btn primary" type="submit">Publicar</button>
+                    </div>
+                </section>
+            </form>
+
+            <aside class="form-side">
+                <section class="surface-panel">
+                    <div class="section-header">
+                        <h2>Antes de publicar</h2>
+                        <p>Use estas orientações para deixar o anúncio mais claro e seguro.</p>
+                    </div>
+                    <ul class="guideline-list">
+                        <li>Informe somente o bairro ou região aproximada, nunca o endereço completo.</li>
+                        <li>Use uma descrição com detalhes reais do estado do item.</li>
+                        <li>Uma foto boa reduz dúvidas e melhora a chance de reserva.</li>
+                    </ul>
+                </section>
+            </aside>
+        </section>
     </main>
 </body>
 </html>

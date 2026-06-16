@@ -22,32 +22,36 @@ $notificacoes = NotificacaoRepo::listar((int) $usuario['id']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Notificações</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/experience.css?v=20260615">
 </head>
 <body>
     <?php render_topbar($usuario); ?>
-    <main class="container">
-        <section class="panel stack">
-            <div class="page-header">
-                <div>
-                    <h1>Notificações</h1>
-                    <p class="muted">Acompanhe respostas, confirmações e movimentos importantes da sua conta.</p>
-                </div>
+    <main class="container ops-page">
+        <section class="ops-hero compact">
+            <div class="ops-hero-main">
+                <span class="ops-kicker">Alertas da conta</span>
+                <h1 class="ops-title">Notificações</h1>
+                <p class="ops-copy">Acompanhe respostas, confirmações, cancelamentos e atualizações importantes sem perder o contexto das suas ações.</p>
+            </div>
+            <div class="ops-hero-side">
                 <form method="post" class="inline-form">
                     <?= csrf_input() ?>
                     <button type="submit" class="btn secondary">Marcar todas como lidas</button>
                 </form>
             </div>
+        </section>
 
-            <?= flash_html() ?>
+        <?= flash_html() ?>
 
-            <?php if (!$notificacoes): ?>
-                <p class="muted empty-state">Sem notificações por enquanto.</p>
-            <?php endif; ?>
+        <?php if (!$notificacoes): ?>
+            <div class="empty-card">Sem notificações por enquanto.</div>
+        <?php endif; ?>
 
+        <section class="notification-list">
             <?php foreach ($notificacoes as $n): ?>
-                <article class="panel <?= $n['lida'] ? 'muted' : '' ?>">
+                <article class="notification-card <?= $n['lida'] ? '' : 'is-unread' ?>">
                     <p><?= e($n['mensagem']) ?></p>
-                    <small class="muted"><?= e(formatar_data_hora($n['criada_em'])) ?></small>
+                    <time><?= e(formatar_data_hora($n['criada_em'])) ?></time>
                 </article>
             <?php endforeach; ?>
         </section>

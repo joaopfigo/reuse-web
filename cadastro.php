@@ -42,16 +42,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Cadastro</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/experience.css?v=20260615">
 </head>
 <body class="auth-page">
-    <main class="auth-card">
-        <section class="auth-brand">
-            <h1>ReUse</h1>
-            <p>Crie sua conta para doar e encontrar itens disponíveis.</p>
+    <main class="auth-shell">
+        <section class="auth-showcase">
+            <span class="hero-tag">Entrada na comunidade</span>
+            <h1>Crie sua conta e participe de uma rede de reuso mais organizada.</h1>
+            <p>Cadastre-se para publicar itens, reservar doações, acompanhar notificações e movimentar sua carteira de pontos com segurança.</p>
+
+            <div class="auth-feature-list">
+                <div class="auth-feature">
+                    <strong>Cadastro simples</strong>
+                    <span>Informações objetivas para você começar rápido e manter apenas dados úteis para a retirada.</span>
+                </div>
+                <div class="auth-feature">
+                    <strong>Comunidade confiável</strong>
+                    <span>Regras de confirmação, avaliações e histórico ajudam a tornar as trocas mais seguras.</span>
+                </div>
+            </div>
         </section>
 
-        <form method="post" class="form-card">
-            <h2>Criar cadastro</h2>
+        <form method="post" class="auth-panel">
+            <div class="section-header">
+                <h2>Criar cadastro</h2>
+                <p>Abra sua conta para começar a doar, reservar e acompanhar toda a jornada no ReUse.</p>
+            </div>
+
             <?= csrf_input() ?>
 
             <?php if ($erro): ?>
@@ -90,9 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <button type="submit" class="btn primary">Cadastrar</button>
 
-            <p class="links">
+            <div class="auth-links">
                 <a href="login.php">Já tenho conta</a>
-            </p>
+            </div>
         </form>
     </main>
 </body>

@@ -51,38 +51,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Confirmar entrega</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/experience.css?v=20260615">
 </head>
 <body>
     <?php render_topbar($usuario); ?>
-    <main class="container">
-        <section class="panel stack">
-            <h1>Confirmar entrega</h1>
-            <p>Item: <strong><?= e($reserva['titulo']) ?></strong></p>
-            <p class="muted">Peça o código de 6 caracteres à doadora no momento da retirada.</p>
-
-            <div class="status-callout">
-                <strong>Local:</strong> <?= e((string) $reserva['local_retirada']) ?><br>
-                <strong>Data:</strong> <?= e(formatar_data_hora($reserva['data_retirada'])) ?>
+    <main class="container ops-page">
+        <section class="ops-hero compact">
+            <div class="ops-hero-main">
+                <span class="ops-kicker">Confirmação da entrega</span>
+                <h1 class="ops-title"><?= e($reserva['titulo']) ?></h1>
+                <p class="ops-copy">Finalize a retirada com o código informado pela doadora para atualizar corretamente os pontos do sistema.</p>
             </div>
+        </section>
 
-            <?php foreach ($erros as $erro): ?>
-                <div class="alert error"><?= e($erro) ?></div>
-            <?php endforeach; ?>
+        <section class="form-layout">
+            <form method="post" class="form-main">
+                <section class="surface-panel">
+                    <div class="section-header">
+                        <h2>Inserir código</h2>
+                        <p>Use o código de 6 caracteres fornecido no encontro para concluir a entrega.</p>
+                    </div>
 
-            <form method="post" class="form-card">
-                <?= csrf_input() ?>
-                <label>
-                    Código de confirmação
-                    <input type="text" name="codigo" maxlength="6" required
-                           placeholder="Ex.: A3F9B2"
-                           style="text-transform:uppercase; letter-spacing:.15em"
-                           value="<?= e($codigo) ?>">
-                </label>
-                <div class="action-row">
-                    <button type="submit" class="btn primary">Confirmar</button>
-                    <a href="minhas.php" class="btn">Voltar</a>
-                </div>
+                    <div class="soft-note">
+                        <strong>Local:</strong> <?= e((string) $reserva['local_retirada']) ?><br>
+                        <strong>Data:</strong> <?= e(formatar_data_hora($reserva['data_retirada'])) ?>
+                    </div>
+
+                    <?php foreach ($erros as $erro): ?>
+                        <div class="alert error"><?= e($erro) ?></div>
+                    <?php endforeach; ?>
+
+                    <?= csrf_input() ?>
+
+                    <label>
+                        Código de confirmação
+                        <input class="code-input" type="text" name="codigo" maxlength="6" required placeholder="Ex.: A3F9B2" value="<?= e($codigo) ?>">
+                    </label>
+
+                    <div class="list-card-actions">
+                        <button type="submit" class="btn primary">Confirmar entrega</button>
+                        <a href="minhas.php" class="btn">Voltar</a>
+                    </div>
+                </section>
             </form>
+
+            <aside class="form-side">
+                <section class="surface-panel">
+                    <div class="section-header">
+                        <h2>Antes de confirmar</h2>
+                        <p>Faça esta checagem rápida para evitar erro de registro.</p>
+                    </div>
+                    <ul class="guideline-list">
+                        <li>Confira se o item foi realmente entregue no encontro combinado.</li>
+                        <li>Peça o código diretamente à doadora no momento da retirada.</li>
+                        <li>Depois da confirmação, os pontos são atualizados automaticamente.</li>
+                    </ul>
+                </section>
+            </aside>
         </section>
     </main>
 </body>

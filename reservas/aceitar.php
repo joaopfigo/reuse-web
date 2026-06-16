@@ -57,35 +57,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Aceitar reserva</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/experience.css?v=20260615">
 </head>
 <body>
     <?php render_topbar($usuario); ?>
-    <main class="container">
-        <section class="panel stack">
-            <h1>Aceitar reserva · <?= e($reserva['titulo']) ?></h1>
-            <p class="muted">Receptora: <strong><?= e($reserva['receptora_nome']) ?></strong></p>
-
-            <?php foreach ($erros as $erro): ?>
-                <div class="alert error"><?= e($erro) ?></div>
-            <?php endforeach; ?>
-
-            <form method="post" class="form-card">
-                <?= csrf_input() ?>
-                <label>
-                    Local de retirada
-                    <input type="text" name="local_retirada" required maxlength="180"
-                           value="<?= e($local) ?>" placeholder="Ex.: estação de metrô, portaria principal, praça movimentada">
-                    <small class="muted">Use um ponto público e fácil de encontrar. Não compartilhe endereço residencial.</small>
-                </label>
-                <label>
-                    Data e horário
-                    <input type="datetime-local" name="data_retirada" required value="<?= e($data) ?>">
-                </label>
-                <div class="action-row">
-                    <button type="submit" class="btn primary">Confirmar aceite</button>
-                    <a href="gerenciar.php" class="btn">Voltar</a>
+    <main class="container ops-page">
+        <section class="ops-hero compact">
+            <div class="ops-hero-main">
+                <span class="ops-kicker">Aceite da reserva</span>
+                <h1 class="ops-title"><?= e($reserva['titulo']) ?></h1>
+                <p class="ops-copy">Defina um local público e um horário claro para organizar a retirada com a receptora.</p>
+            </div>
+            <div class="ops-hero-side">
+                <div class="ops-side-card">
+                    <span>Receptora</span>
+                    <strong><?= e($reserva['receptora_nome']) ?></strong>
                 </div>
+            </div>
+        </section>
+
+        <section class="form-layout">
+            <form method="post" class="form-main">
+                <section class="surface-panel">
+                    <div class="section-header">
+                        <h2>Combinar retirada</h2>
+                        <p>Escolha um ponto seguro e descreva o encontro com o máximo de clareza possível.</p>
+                    </div>
+
+                    <?php foreach ($erros as $erro): ?>
+                        <div class="alert error"><?= e($erro) ?></div>
+                    <?php endforeach; ?>
+
+                    <?= csrf_input() ?>
+
+                    <label>
+                        Local de retirada
+                        <input type="text" name="local_retirada" required maxlength="180" value="<?= e($local) ?>" placeholder="Ex.: estação de metrô, portaria principal, praça movimentada">
+                        <small class="muted">Use um ponto público, conhecido e fácil de localizar.</small>
+                    </label>
+
+                    <label>
+                        Data e horário
+                        <input type="datetime-local" name="data_retirada" required value="<?= e($data) ?>">
+                    </label>
+
+                    <div class="list-card-actions">
+                        <button type="submit" class="btn primary">Confirmar aceite</button>
+                        <a href="gerenciar.php" class="btn">Voltar</a>
+                    </div>
+                </section>
             </form>
+
+            <aside class="form-side">
+                <section class="surface-panel">
+                    <div class="section-header">
+                        <h2>Dicas para o encontro</h2>
+                        <p>Pequenos cuidados ajudam a evitar desencontros e tornam a retirada mais tranquila.</p>
+                    </div>
+                    <ul class="guideline-list">
+                        <li>Prefira locais com circulação de pessoas e acesso fácil.</li>
+                        <li>Use referências claras, como entrada principal ou praça central.</li>
+                        <li>Depois da entrega, a receptora confirma com o código de 6 caracteres.</li>
+                    </ul>
+                </section>
+            </aside>
         </section>
     </main>
 </body>

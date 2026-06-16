@@ -13,55 +13,56 @@ $reservas = ReservaRepo::minhasDaDoadora((int) $usuario['id']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Reservas dos meus itens</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/experience.css?v=20260615">
 </head>
 <body>
     <?php render_topbar($usuario); ?>
-    <main class="container">
-        <section class="panel stack">
-            <div class="page-header">
-                <div>
-                    <h1>Reservas dos meus itens</h1>
-                    <p class="muted">Veja quem reservou, combine o encontro e acompanhe o código de confirmação.</p>
-                </div>
+    <main class="container ops-page">
+        <section class="ops-hero compact">
+            <div class="ops-hero-main">
+                <span class="ops-kicker">Doações em andamento</span>
+                <h1 class="ops-title">Minhas doações</h1>
+                <p class="ops-copy">Acompanhe quem reservou seus itens, defina local de retirada e gerencie confirmações com mais clareza.</p>
             </div>
+        </section>
 
-            <?= flash_html() ?>
+        <?= flash_html() ?>
 
-            <?php if (!$reservas): ?>
-                <p class="muted empty-state">Nenhuma reserva pendente ou aceita nos seus itens.</p>
-            <?php endif; ?>
+        <?php if (!$reservas): ?>
+            <div class="empty-card">Nenhuma reserva pendente ou aceita nos seus itens.</div>
+        <?php endif; ?>
 
+        <section class="list-grid">
             <?php foreach ($reservas as $r): ?>
-                <article class="panel stack">
-                    <div class="page-header">
+                <article class="list-card">
+                    <div class="list-card-head">
                         <div>
                             <h2><?= e($r['titulo']) ?></h2>
-                            <p class="muted">Receptora: <strong><?= e($r['receptora_nome']) ?></strong> · <?= (int) $r['pontos'] ?> pontos</p>
+                            <p class="list-card-meta">Receptora: <strong><?= e($r['receptora_nome']) ?></strong> · <?= (int) $r['pontos'] ?> pontos</p>
                         </div>
                         <span class="<?= e(status_badge_class((string) $r['status'])) ?>"><?= e(status_label((string) $r['status'])) ?></span>
                     </div>
 
-                    <p class="muted">Solicitação criada em <?= e(formatar_data_hora($r['criada_em'])) ?> e expira em <?= e(formatar_data_hora($r['expira_em'])) ?>.</p>
+                    <div class="list-card-body">
+                        <p class="soft-note">Solicitação criada em <?= e(formatar_data_hora($r['criada_em'])) ?> e expira em <?= e(formatar_data_hora($r['expira_em'])) ?>.</p>
 
-                    <?php if ($r['status'] === 'pendente'): ?>
-                        <div class="status-callout">
-                            A reserva ainda está aguardando sua aprovação com local e horário de retirada.
-                        </div>
-                    <?php else: ?>
-                        <div class="status-callout">
-                            <strong>Local:</strong> <?= e((string) $r['local_retirada']) ?><br>
-                            <strong>Data:</strong> <?= e(formatar_data_hora($r['data_retirada'])) ?>
-                        </div>
-                        <?php if (!empty($r['codigo_confirmacao'])): ?>
-                            <div class="code-callout">
-                                <span class="summary-label">Código de confirmação</span>
-                                <code><?= e($r['codigo_confirmacao']) ?></code>
-                                <small class="muted">Mostre este código para a receptora apenas no momento da entrega.</small>
+                        <?php if ($r['status'] === 'pendente'): ?>
+                            <div class="soft-note">A reserva ainda aguarda sua aprovação com local e horário de retirada.</div>
+                        <?php else: ?>
+                            <div class="soft-note">
+                                <strong>Local:</strong> <?= e((string) $r['local_retirada']) ?><br>
+                                <strong>Data:</strong> <?= e(formatar_data_hora($r['data_retirada'])) ?>
                             </div>
+                            <?php if (!empty($r['codigo_confirmacao'])): ?>
+                                <div class="soft-note">
+                                    <strong>Código de confirmação:</strong> <code><?= e($r['codigo_confirmacao']) ?></code><br>
+                                    <small class="muted">Mostre este código para a receptora apenas no momento da entrega.</small>
+                                </div>
+                            <?php endif; ?>
                         <?php endif; ?>
-                    <?php endif; ?>
+                    </div>
 
-                    <div class="action-row">
+                    <div class="list-card-actions">
                         <?php if ($r['status'] === 'pendente'): ?>
                             <a class="btn primary" href="aceitar.php?id=<?= (int) $r['id'] ?>">Aceitar e combinar retirada</a>
                         <?php endif; ?>

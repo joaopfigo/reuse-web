@@ -13,39 +13,40 @@ $itens = ItemRepo::meusItens((int) $usuario['id']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Meus itens</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/experience.css?v=20260615">
 </head>
 <body>
     <?php render_topbar($usuario); ?>
-    <main class="container">
-        <section class="panel stack">
-            <div class="page-header">
-                <div>
-                    <h1>Meus itens</h1>
-                    <p class="muted">Gerencie anúncios ativos, pausados e entregues a partir de um só lugar.</p>
-                </div>
+    <main class="container ops-page">
+        <section class="ops-hero compact">
+            <div class="ops-hero-main">
+                <span class="ops-kicker">Gestão de anúncios</span>
+                <h1 class="ops-title">Meus itens</h1>
+                <p class="ops-copy">Visualize seus anúncios, pause publicações, reative itens e acompanhe o status de cada doação com mais clareza.</p>
+            </div>
+            <div class="ops-hero-side">
                 <a class="btn primary" href="criar.php">Novo item</a>
             </div>
+        </section>
 
-            <?= flash_html() ?>
+        <?= flash_html() ?>
 
-            <?php if (!$itens): ?>
-                <p class="muted empty-state">Você ainda não cadastrou nenhum item. <a href="criar.php">Cadastrar agora</a>.</p>
-            <?php endif; ?>
+        <?php if (!$itens): ?>
+            <div class="empty-card">Você ainda não cadastrou nenhum item. <a href="criar.php">Cadastrar agora</a>.</div>
+        <?php endif; ?>
 
+        <section class="list-grid">
             <?php foreach ($itens as $item): ?>
-                <article class="panel stack">
-                    <div class="page-header">
+                <article class="list-card">
+                    <div class="list-card-head">
                         <div>
                             <h2><?= e($item['titulo']) ?></h2>
-                            <p class="muted">
-                                <?= e($item['categoria']) ?> ·
-                                <?= (int) $item['pontos'] ?> pontos
-                            </p>
+                            <p class="list-card-meta"><?= e($item['categoria']) ?> · <?= (int) $item['pontos'] ?> pontos</p>
                         </div>
                         <span class="<?= e(status_badge_class((string) $item['status'])) ?>"><?= e(status_label((string) $item['status'])) ?></span>
                     </div>
 
-                    <div class="action-row">
+                    <div class="list-card-actions">
                         <a class="btn" href="detalhe.php?id=<?= (int) $item['id'] ?>">Ver</a>
 
                         <?php if (in_array($item['status'], ['disponivel', 'pausado'], true)): ?>
