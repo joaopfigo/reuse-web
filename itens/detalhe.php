@@ -2,9 +2,11 @@
 require_once __DIR__ . '/../app/helpers/auth.php';
 require_once __DIR__ . '/../app/helpers/layout.php';
 require_once __DIR__ . '/../app/repositories/ItemRepo.php';
+require_once __DIR__ . '/../app/repositories/UsuarioRepo.php';
 
 $usuario = exigir_login();
 $item = ItemRepo::buscarPorId((int) ($_GET['id'] ?? 0));
+$doadoraResumo = $item ? UsuarioRepo::resumoPublico((int) $item['doadora_id']) : null;
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -55,7 +57,7 @@ $item = ItemRepo::buscarPorId((int) ($_GET['id'] ?? 0));
                     <section class="surface-panel">
                         <div class="section-header">
                             <h2>Resumo do item</h2>
-                            <p>Veja rapidamente a categoria, condição e os pontos necessários para reservar.</p>
+                            <p>Veja rapidamente a categoria, a condição e os pontos necessários para reservar.</p>
                         </div>
 
                         <div class="pill-row">
@@ -80,6 +82,36 @@ $item = ItemRepo::buscarPorId((int) ($_GET['id'] ?? 0));
                                 <a class="btn danger" href="../denuncias/reportar.php?item_id=<?= (int) $item['id'] ?>">Denunciar item</a>
                             </div>
                         <?php endif; ?>
+                    </section>
+
+                    <section class="surface-panel">
+                        <div class="section-header">
+                            <h2>Informações da doadora</h2>
+                            <p>Um resumo rápido sobre quem publicou este item dentro da rede.</p>
+                        </div>
+
+                        <div class="donor-info-grid">
+                            <div class="donor-stat">
+                                <span class="donor-stat-label">Nome</span>
+                                <strong class="donor-stat-value"><?= e($doadoraResumo['nome'] ?? $item['doadora']) ?></strong>
+                            </div>
+
+                            <div class="donor-stat">
+                                <span class="donor-stat-label">Avaliação média</span>
+                                <strong class="donor-stat-value">
+                                    <?php if (!empty($doadoraResumo['avaliacao_media'])): ?>
+                                        <?= number_format((float) $doadoraResumo['avaliacao_media'], 1, ',', '.') ?> / 5
+                                    <?php else: ?>
+                                        Ainda sem avaliações
+                                    <?php endif; ?>
+                                </strong>
+                            </div>
+
+                            <div class="donor-stat">
+                                <span class="donor-stat-label">Itens doados</span>
+                                <strong class="donor-stat-value"><?= (int) ($doadoraResumo['itens_doados'] ?? 0) ?></strong>
+                            </div>
+                        </div>
                     </section>
 
                     <section class="surface-panel">

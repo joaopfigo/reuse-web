@@ -56,4 +56,30 @@ class UsuarioRepo
             ':cidade' => $cidade,
         ]);
     }
+
+    public static function resumoPublico(int $id): ?array
+    {
+        $stmt = db()->prepare(
+            'SELECT
+                u.id,
+                u.nome,
+                (
+                    SELECT ROUND(AVG(a.nota), 1)
+                    FROM avaliacoes a
+                    WHERE a.avaliada_id = u.id
+                ) AS avaliacao_media,
+                (
+                    SELECT COUNT(*)
+                    FROM itens i
+                    WHERE i.doadora_id = u.id
+                      AND i.status <> "cancelado"
+                ) AS itens_doados
+             FROM usuarios u
+             WHERE u.id = :id AND u.ativo = 1'
+        );
+        $stmt->execute([':id' => $id]);
+        $resumo = $stmt->fetch();
+
+        return $resumo ?: null;
+    }
 }

@@ -387,6 +387,33 @@
   line-height: 1.75;
 }
 
+.donor-info-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.donor-stat {
+  display: grid;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: #fff8fb;
+  border: 1px solid #f0e2e8;
+}
+
+.donor-stat-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8a707d;
+}
+
+.donor-stat-value {
+  color: #3a2632;
+  line-height: 1.5;
+}
+
 .form-main .surface-panel,
 .form-side .surface-panel {
   gap: 20px;
