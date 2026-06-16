@@ -8,6 +8,8 @@ $categorias = ItemRepo::categorias();
 $item = ItemRepo::buscarPorId((int) ($_GET['id'] ?? 0));
 $erro = '';
 $sucesso = '';
+$categoriaCosmeticosId = 3;
+$mensagemBioseguranca = 'Por questões de biosegurança, cosméticos e itens de beleza só podem ser publicados quando estiverem novos, lacrados e sem uso. Para proteger quem recebe o item, essa categoria aceita apenas a condição "Novo".';
 
 if (!$item || (int) $item['doadora_id'] !== (int) $usuario['id']) {
     $erro = 'Item não encontrado ou sem permissão para editar.';
@@ -27,12 +29,18 @@ if (!$item || (int) $item['doadora_id'] !== (int) $usuario['id']) {
         $erro = 'Preencha todos os campos obrigatórios.';
     } elseif (strlen($dados['descricao']) < 20) {
         $erro = 'A descrição precisa ter pelo menos 20 caracteres.';
+    } elseif ((int) $dados['categoria_id'] === $categoriaCosmeticosId && $dados['condicao'] !== 'novo') {
+        $erro = $mensagemBioseguranca;
     } else {
         ItemRepo::atualizar((int) $item['id'], (int) $usuario['id'], $dados);
         $item = ItemRepo::buscarPorId((int) $item['id']);
         $sucesso = 'Item atualizado.';
     }
 }
+
+$condicaoAtual = $item
+    ? (((int) $item['categoria_id'] === $categoriaCosmeticosId) ? 'novo' : (string) $item['condicao'])
+    : 'novo';
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -87,7 +95,7 @@ if (!$item || (int) $item['doadora_id'] !== (int) $usuario['id']) {
                         <div class="grid-2">
                             <label>
                                 Categoria
-                                <select name="categoria_id" required>
+                                <select name="categoria_id" required data-category-select data-cosmetic-category-id="<?= $categoriaCosmeticosId ?>">
                                     <?php foreach ($categorias as $categoria): ?>
                                         <option value="<?= (int) $categoria['id'] ?>" <?= (int) $categoria['id'] === (int) $item['categoria_id'] ? 'selected' : '' ?>>
                                             <?= e($categoria['nome']) ?>
@@ -97,12 +105,13 @@ if (!$item || (int) $item['doadora_id'] !== (int) $usuario['id']) {
                             </label>
                             <label>
                                 Condição
-                                <select name="condicao" required>
-                                    <option value="novo" <?= $item['condicao'] === 'novo' ? 'selected' : '' ?>>Novo</option>
-                                    <option value="seminovo" <?= $item['condicao'] === 'seminovo' ? 'selected' : '' ?>>Seminovo</option>
-                                    <option value="usado_bom" <?= $item['condicao'] === 'usado_bom' ? 'selected' : '' ?>>Usado em bom estado</option>
-                                    <option value="usado_regular" <?= $item['condicao'] === 'usado_regular' ? 'selected' : '' ?>>Usado regular</option>
+                                <select name="condicao" required data-condition-select>
+                                    <option value="novo" <?= $condicaoAtual === 'novo' ? 'selected' : '' ?>>Novo</option>
+                                    <option value="seminovo" <?= $condicaoAtual === 'seminovo' ? 'selected' : '' ?>>Seminovo</option>
+                                    <option value="usado_bom" <?= $condicaoAtual === 'usado_bom' ? 'selected' : '' ?>>Usado em bom estado</option>
+                                    <option value="usado_regular" <?= $condicaoAtual === 'usado_regular' ? 'selected' : '' ?>>Usado regular</option>
                                 </select>
+                                <small class="muted soft-note" data-cosmetic-condition-note hidden><?= e($mensagemBioseguranca) ?></small>
                             </label>
                         </div>
 

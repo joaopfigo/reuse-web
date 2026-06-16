@@ -8,15 +8,15 @@
 
 :root {
   /* ── Cores Primárias (verde-sustentabilidade) ─────────────── */
-  --clr-primary:          #2a7d50;   /* botão principal, links, foco */
-  --clr-primary-hover:    #1e6040;   /* hover do primário */
-  --clr-primary-active:   #175233;   /* active/pressed */
-  --clr-primary-light:    #eaf4ee;   /* fundo de elementos suaves */
-  --clr-primary-soft:     #c8e6d4;   /* badges, highlights */
+  --clr-primary:          #b45d7f;   /* botão principal, links, foco */
+  --clr-primary-hover:    #944764;   /* hover do primário */
+  --clr-primary-active:   #7a3650;   /* active/pressed */
+  --clr-primary-light:    #fbf0f5;   /* fundo de elementos suaves */
+  --clr-primary-soft:     #f0d1dd;   /* badges, highlights */
 
   /* ── Ações Confirmativas ──────────────────────────────────── */
-  --clr-success:          #1a7a3e;   /* entregas confirmadas */
-  --clr-success-light:    #d4eddf;
+  --clr-success:          #2f8d6a;   /* entregas confirmadas */
+  --clr-success-light:    #dbf0e6;
 
   /* ── Ações Destrutivas / Perigo ───────────────────────────── */
   --clr-danger:           #c0392b;   /* cancelar, denunciar, excluir */
@@ -32,26 +32,26 @@
   --clr-info-light:       #dbeafe;
 
   /* ── Superfícies ──────────────────────────────────────────── */
-  --clr-bg:               #f2f7f4;   /* fundo geral da página */
+  --clr-bg:               #fbf6f8;   /* fundo geral da página */
   --clr-surface:          #ffffff;   /* cards, painéis, formulários */
-  --clr-soft:             #eaf4ee;   /* áreas de destaque suave */
+  --clr-soft:             #f8eef2;   /* áreas de destaque suave */
 
   /* ── Texto ────────────────────────────────────────────────── */
-  --clr-text:             #1a2e23;   /* texto principal */
-  --clr-muted:            #506158;   /* texto secundário */
-  --clr-subtle:           #8ba896;   /* placeholders, hints */
+  --clr-text:             #332430;   /* texto principal */
+  --clr-muted:            #705a68;   /* texto secundário */
+  --clr-subtle:           #a9909d;   /* placeholders, hints */
   --clr-on-primary:       #ffffff;   /* texto sobre fundo verde */
 
   /* ── Bordas e Divisores ───────────────────────────────────── */
-  --clr-border:           #c6d9ce;
+  --clr-border:           #ead6df;
   --clr-border-focus:     var(--clr-primary);
-  --clr-divider:          #e4eeea;
+  --clr-divider:          #f1e5eb;
 
   /* ── Sombras ──────────────────────────────────────────────── */
-  --shadow-xs: 0 1px 2px rgba(20, 55, 35, 0.06);
-  --shadow-sm: 0 2px 8px rgba(20, 55, 35, 0.09);
-  --shadow-md: 0 6px 20px rgba(20, 55, 35, 0.13);
-  --shadow-lg: 0 12px 36px rgba(20, 55, 35, 0.18);
+  --shadow-xs: 0 1px 2px rgba(111, 68, 89, 0.06);
+  --shadow-sm: 0 2px 8px rgba(111, 68, 89, 0.09);
+  --shadow-md: 0 6px 20px rgba(111, 68, 89, 0.13);
+  --shadow-lg: 0 12px 36px rgba(111, 68, 89, 0.18);
 
   /* ── Tipografia ───────────────────────────────────────────── */
   --font-sans:   system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
@@ -1046,35 +1046,35 @@ textarea {
 
 /* Design refresh */
 :root {
-  --clr-primary: #1f7a59;
-  --clr-primary-hover: #176347;
-  --clr-primary-active: #104a35;
-  --clr-primary-light: #eef8f3;
-  --clr-primary-soft: #cde8dc;
-  --clr-accent: #c98b2f;
-  --clr-navy: #183036;
-  --clr-success: #176d43;
-  --clr-success-light: #dcefe5;
-  --clr-bg: #f4f7f5;
+  --clr-primary: #b45d7f;
+  --clr-primary-hover: #944764;
+  --clr-primary-active: #7a3650;
+  --clr-primary-light: #fbf0f5;
+  --clr-primary-soft: #f0d1dd;
+  --clr-accent: #e4a574;
+  --clr-navy: #432a3a;
+  --clr-success: #2f8d6a;
+  --clr-success-light: #dbf0e6;
+  --clr-bg: #fbf6f8;
   --clr-surface: #ffffff;
-  --clr-soft: #eef4f1;
-  --clr-surface-alt: #f8fbf9;
-  --clr-text: #17322c;
-  --clr-muted: #61756d;
-  --clr-subtle: #95a79f;
-  --clr-border: #d4e1da;
-  --clr-divider: #e7efeb;
-  --shadow-xs: 0 1px 2px rgba(20, 55, 35, 0.04);
-  --shadow-sm: 0 8px 24px rgba(23, 50, 44, 0.06);
-  --shadow-md: 0 18px 44px rgba(23, 50, 44, 0.10);
-  --shadow-lg: 0 30px 70px rgba(18, 38, 33, 0.16);
+  --clr-soft: #f9f0f4;
+  --clr-surface-alt: #fff8fb;
+  --clr-text: #332430;
+  --clr-muted: #705a68;
+  --clr-subtle: #ab90a0;
+  --clr-border: #ead6df;
+  --clr-divider: #f1e5eb;
+  --shadow-xs: 0 1px 2px rgba(111, 68, 89, 0.04);
+  --shadow-sm: 0 8px 24px rgba(111, 68, 89, 0.07);
+  --shadow-md: 0 18px 44px rgba(111, 68, 89, 0.11);
+  --shadow-lg: 0 30px 70px rgba(111, 68, 89, 0.17);
 }
 
 body {
   background:
-    radial-gradient(circle at top left, rgba(201, 139, 47, 0.10), transparent 28%),
-    radial-gradient(circle at top right, rgba(31, 122, 89, 0.10), transparent 22%),
-    linear-gradient(180deg, #f8fbf9 0%, var(--clr-bg) 38%, #f3f6f4 100%);
+    radial-gradient(circle at top left, rgba(228, 165, 116, 0.16), transparent 26%),
+    radial-gradient(circle at top right, rgba(180, 93, 127, 0.12), transparent 24%),
+    linear-gradient(180deg, #fffafc 0%, var(--clr-bg) 38%, #f8eff4 100%);
 }
 
 .container {
@@ -1086,8 +1086,8 @@ body {
   padding-top: 10px;
   padding-bottom: 10px;
   background: rgba(255, 255, 255, 0.82);
-  border-bottom: 1px solid rgba(212, 225, 218, 0.72);
-  box-shadow: 0 10px 30px rgba(23, 50, 44, 0.05);
+  border-bottom: 1px solid rgba(234, 214, 223, 0.78);
+  box-shadow: 0 10px 30px rgba(111, 68, 89, 0.06);
   backdrop-filter: blur(14px);
 }
 
@@ -1103,7 +1103,7 @@ body {
   height: 11px;
   border-radius: 999px;
   background: linear-gradient(135deg, var(--clr-primary), var(--clr-accent));
-  box-shadow: 0 0 0 7px rgba(31, 122, 89, 0.10);
+  box-shadow: 0 0 0 7px rgba(180, 93, 127, 0.10);
 }
 
 .topbar nav {
@@ -1118,8 +1118,8 @@ body {
 }
 
 .topbar nav a:hover {
-  background: rgba(31, 122, 89, 0.10);
-  box-shadow: inset 0 0 0 1px rgba(31, 122, 89, 0.08);
+  background: rgba(180, 93, 127, 0.10);
+  box-shadow: inset 0 0 0 1px rgba(180, 93, 127, 0.08);
 }
 
 .topbar .muted {
@@ -1129,7 +1129,7 @@ body {
 
 .panel {
   padding: var(--sp-6);
-  border: 1px solid rgba(212, 225, 218, 0.88);
+  border: 1px solid rgba(234, 214, 223, 0.88);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.88);
   box-shadow: var(--shadow-sm);
@@ -1138,13 +1138,13 @@ body {
 
 .auth-page {
   background:
-    radial-gradient(circle at top left, rgba(31, 122, 89, 0.12), transparent 30%),
-    radial-gradient(circle at bottom right, rgba(201, 139, 47, 0.14), transparent 30%),
-    linear-gradient(180deg, #f7fbf9 0%, #edf4f0 100%);
+    radial-gradient(circle at top left, rgba(180, 93, 127, 0.14), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(228, 165, 116, 0.16), transparent 30%),
+    linear-gradient(180deg, #fffafd 0%, #f9eff4 100%);
 }
 
 .auth-card {
-  border: 1px solid rgba(212, 225, 218, 0.88);
+  border: 1px solid rgba(234, 214, 223, 0.88);
   border-radius: 28px;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(14px);
@@ -1152,7 +1152,7 @@ body {
 
 .auth-brand {
   background:
-    linear-gradient(160deg, rgba(18, 48, 40, 0.92) 0%, rgba(24, 85, 64, 0.78) 52%, rgba(201, 139, 47, 0.55) 100%),
+    linear-gradient(160deg, rgba(74, 42, 58, 0.94) 0%, rgba(180, 93, 127, 0.82) 54%, rgba(228, 165, 116, 0.62) 100%),
     url("https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=1000&q=80");
 }
 
@@ -1173,26 +1173,26 @@ body {
 }
 
 .btn.primary {
-  background: linear-gradient(135deg, var(--clr-primary) 0%, #24906a 100%);
+  background: linear-gradient(135deg, var(--clr-primary) 0%, #cf7396 100%);
   border-color: transparent;
-  box-shadow: 0 12px 22px rgba(31, 122, 89, 0.24);
+  box-shadow: 0 12px 22px rgba(180, 93, 127, 0.24);
 }
 
 .btn.primary:hover {
-  background: linear-gradient(135deg, var(--clr-primary-hover) 0%, #1b7c5a 100%);
+  background: linear-gradient(135deg, var(--clr-primary-hover) 0%, #b45d7f 100%);
   border-color: transparent;
-  box-shadow: 0 16px 28px rgba(31, 122, 89, 0.30);
+  box-shadow: 0 16px 28px rgba(180, 93, 127, 0.30);
 }
 
 .btn.secondary {
-  background: rgba(31, 122, 89, 0.08);
-  border-color: rgba(31, 122, 89, 0.16);
+  background: rgba(180, 93, 127, 0.08);
+  border-color: rgba(180, 93, 127, 0.16);
   color: var(--clr-primary-hover);
 }
 
 .btn.secondary:hover {
-  background: rgba(31, 122, 89, 0.12);
-  border-color: rgba(31, 122, 89, 0.22);
+  background: rgba(180, 93, 127, 0.12);
+  border-color: rgba(180, 93, 127, 0.22);
 }
 
 .btn.danger {
@@ -1210,7 +1210,7 @@ body {
 }
 
 .item-card {
-  border: 1px solid rgba(212, 225, 218, 0.88);
+  border: 1px solid rgba(234, 214, 223, 0.88);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.92);
   box-shadow: var(--shadow-sm);
@@ -1225,7 +1225,7 @@ body {
 }
 
 .badge {
-  background: rgba(31, 122, 89, 0.10);
+  background: rgba(180, 93, 127, 0.10);
   letter-spacing: 0.04em;
 }
 
@@ -1240,7 +1240,7 @@ body {
   gap: var(--sp-5);
   padding: var(--sp-8);
   border-radius: 28px;
-  background: linear-gradient(135deg, rgba(24, 48, 54, 0.96) 0%, rgba(24, 85, 64, 0.92) 56%, rgba(201, 139, 47, 0.78) 100%);
+  background: linear-gradient(135deg, rgba(67, 42, 58, 0.97) 0%, rgba(180, 93, 127, 0.92) 56%, rgba(228, 165, 116, 0.78) 100%);
   color: #fff;
   box-shadow: var(--shadow-lg);
   position: relative;

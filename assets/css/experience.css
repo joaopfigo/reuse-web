@@ -12,9 +12,9 @@
   border-radius: 26px;
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 22%),
-    linear-gradient(135deg, #163138 0%, #1f7a59 62%, #c58d37 100%);
+    linear-gradient(135deg, #4d3140 0%, #b45d7f 58%, #e4a574 100%);
   color: #fff;
-  box-shadow: 0 24px 56px rgba(16, 42, 35, 0.18);
+  box-shadow: 0 24px 56px rgba(98, 60, 79, 0.18);
 }
 
 .ops-hero.compact {
@@ -95,8 +95,8 @@
   padding: 24px;
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(212, 225, 218, 0.92);
-  box-shadow: 0 12px 28px rgba(23, 50, 44, 0.06);
+  border: 1px solid rgba(234, 214, 223, 0.92);
+  box-shadow: 0 12px 28px rgba(98, 60, 79, 0.06);
 }
 
 .surface-grid {
@@ -121,21 +121,21 @@
   margin: 0;
   line-height: 1.08;
   letter-spacing: -0.04em;
-  color: #17322c;
+  color: #3a2632;
 }
 
 .section-header p {
   margin: 0;
-  color: #62766d;
+  color: #7a6270;
   line-height: 1.7;
 }
 
 .soft-note {
   padding: 15px 16px;
   border-radius: 16px;
-  background: #f7faf8;
-  border: 1px solid #e4ece8;
-  color: #60746b;
+  background: #fff8fb;
+  border: 1px solid #f0dfe7;
+  color: #775f6d;
 }
 
 .list-grid {
@@ -149,8 +149,8 @@
   padding: 22px;
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(212, 225, 218, 0.92);
-  box-shadow: 0 12px 28px rgba(23, 50, 44, 0.05);
+  border: 1px solid rgba(234, 214, 223, 0.92);
+  box-shadow: 0 12px 28px rgba(98, 60, 79, 0.05);
 }
 
 .list-card-head {
@@ -169,7 +169,7 @@
 
 .list-card-meta {
   margin: 0;
-  color: #61756d;
+  color: #775f6d;
   line-height: 1.7;
 }
 
@@ -204,17 +204,17 @@
   padding: 20px 22px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(212, 225, 218, 0.92);
-  box-shadow: 0 10px 22px rgba(23, 50, 44, 0.05);
+  border: 1px solid rgba(234, 214, 223, 0.92);
+  box-shadow: 0 10px 22px rgba(98, 60, 79, 0.05);
 }
 
 .notification-card.is-unread {
-  border-color: rgba(31, 122, 89, 0.26);
-  background: linear-gradient(180deg, #ffffff 0%, #f8fbf9 100%);
+  border-color: rgba(180, 93, 127, 0.26);
+  background: linear-gradient(180deg, #ffffff 0%, #fff8fb 100%);
 }
 
 .notification-card time {
-  color: #70837b;
+  color: #8a707e;
   font-size: 0.83rem;
 }
 
@@ -230,12 +230,12 @@
   padding: 22px;
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(212, 225, 218, 0.92);
-  box-shadow: 0 12px 26px rgba(23, 50, 44, 0.05);
+  border: 1px solid rgba(234, 214, 223, 0.92);
+  box-shadow: 0 12px 26px rgba(98, 60, 79, 0.05);
 }
 
 .wallet-card.featured {
-  background: linear-gradient(135deg, #1d7a59 0%, #15583f 100%);
+  background: linear-gradient(135deg, #b45d7f 0%, #8f4862 100%);
   color: #fff;
 }
 
@@ -249,7 +249,7 @@
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-weight: 800;
-  color: #63776e;
+  color: #8a707d;
 }
 
 .wallet-value {
@@ -260,7 +260,7 @@
 }
 
 .wallet-note {
-  color: #62766d;
+  color: #775f6d;
 }
 
 .ledger-list {
@@ -275,8 +275,8 @@
   align-items: center;
   padding: 18px 20px;
   border-radius: 18px;
-  background: #f8fbf9;
-  border: 1px solid #e5eeea;
+  background: #fff8fb;
+  border: 1px solid #f0e2e8;
 }
 
 .ledger-item .transacao-icone {
@@ -320,9 +320,9 @@
   overflow: hidden;
   border-radius: 24px;
   min-height: 360px;
-  background: linear-gradient(180deg, #edf5f0 0%, #e2ede7 100%);
-  border: 1px solid rgba(212, 225, 218, 0.9);
-  box-shadow: 0 16px 34px rgba(23, 50, 44, 0.08);
+  background: linear-gradient(180deg, #fff3f7 0%, #f5e8ee 100%);
+  border: 1px solid rgba(234, 214, 223, 0.9);
+  box-shadow: 0 16px 34px rgba(98, 60, 79, 0.08);
 }
 
 .detail-image-frame img {
@@ -335,7 +335,7 @@
   display: grid;
   place-items: center;
   min-height: 300px;
-  color: #72867f;
+  color: #947887;
   font-weight: 700;
 }
 
@@ -351,8 +351,8 @@
   min-height: 34px;
   padding: 0 12px;
   border-radius: 999px;
-  background: rgba(31, 122, 89, 0.1);
-  color: #176347;
+  background: rgba(180, 93, 127, 0.12);
+  color: #944764;
   font-size: 0.82rem;
   font-weight: 800;
 }
@@ -361,13 +361,13 @@
   padding: 22px 24px;
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(212, 225, 218, 0.92);
-  box-shadow: 0 12px 28px rgba(23, 50, 44, 0.05);
+  border: 1px solid rgba(234, 214, 223, 0.92);
+  box-shadow: 0 12px 28px rgba(98, 60, 79, 0.05);
 }
 
 .content-card p {
   margin: 0;
-  color: #5d7168;
+  color: #745d69;
   line-height: 1.82;
 }
 
@@ -380,7 +380,7 @@
   display: grid;
   gap: 12px;
   padding-left: 1.1rem;
-  color: #5e7269;
+  color: #745e6a;
 }
 
 .guideline-list li {
@@ -410,8 +410,8 @@
   overflow: hidden;
   border-radius: 30px;
   background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(212, 225, 218, 0.92);
-  box-shadow: 0 30px 70px rgba(18, 38, 33, 0.16);
+  border: 1px solid rgba(234, 214, 223, 0.92);
+  box-shadow: 0 30px 70px rgba(98, 60, 79, 0.16);
   backdrop-filter: blur(14px);
 }
 
@@ -423,7 +423,7 @@
   color: #fff;
   background:
     radial-gradient(circle at top right, rgba(255,255,255,0.14), transparent 24%),
-    linear-gradient(160deg, rgba(18, 48, 40, 0.94) 0%, rgba(24, 85, 64, 0.82) 56%, rgba(201, 139, 47, 0.58) 100%),
+    linear-gradient(160deg, rgba(73, 42, 57, 0.95) 0%, rgba(180, 93, 127, 0.83) 56%, rgba(228, 165, 116, 0.60) 100%),
     url("https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=1400&q=80");
   background-size: cover;
   background-position: center;
@@ -482,7 +482,7 @@
 
 .auth-panel p {
   margin: 0;
-  color: #62766d;
+  color: #7a6270;
   line-height: 1.75;
 }
 
@@ -490,7 +490,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  color: #688078;
+  color: #866c7a;
   font-size: 0.92rem;
 }
 

@@ -82,10 +82,10 @@ CREATE TABLE IF NOT EXISTS transacoes_pontos (
 
 INSERT IGNORE INTO categorias (id, nome, descricao) VALUES
     (1, 'Roupas', 'Pecas de vestuario em bom estado'),
-    (2, 'Acessorios', 'Bolsas, bijuterias, cintos e itens similares'),
-    (3, 'Livros', 'Livros didaticos, literatura e materiais de estudo'),
-    (4, 'Casa', 'Objetos pequenos para casa'),
-    (5, 'Infantil', 'Itens infantis reutilizaveis');
+    (2, 'Acessórios', 'Bolsas, bijuterias, cintos e itens similares'),
+    (3, 'Cosméticos e itens de beleza (novos/lacrados)', 'Produtos novos, lacrados e apropriados para reutilização segura'),
+    (4, 'Livros e materiais de estudo', 'Livros didáticos, literatura e materiais de apoio ao estudo'),
+    (5, 'Decoração', 'Objetos decorativos e pequenos itens para casa');
 
 -- Recursos adicionais usados pelo codigo atual
 ALTER TABLE usuarios

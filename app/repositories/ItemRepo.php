@@ -8,7 +8,20 @@ class ItemRepo
 {
     public static function categorias(): array
     {
-        return db()->query('SELECT id, nome FROM categorias WHERE ativa = 1 ORDER BY nome')->fetchAll();
+        return db()->query(
+            'SELECT id, nome
+             FROM categorias
+             WHERE ativa = 1
+               AND id IN (1, 2, 3, 4, 5)
+             ORDER BY CASE id
+                 WHEN 1 THEN 1
+                 WHEN 2 THEN 2
+                 WHEN 3 THEN 3
+                 WHEN 4 THEN 4
+                 WHEN 5 THEN 5
+                 ELSE 99
+             END'
+        )->fetchAll();
     }
 
     public static function criar(array $dados, ?string $fotoPath): int

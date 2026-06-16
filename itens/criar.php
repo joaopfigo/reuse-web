@@ -8,6 +8,8 @@ $usuario = exigir_login();
 $categorias = ItemRepo::categorias();
 $erro = '';
 $sucesso = '';
+$categoriaCosmeticosId = 3;
+$mensagemBioseguranca = 'Por questões de biosegurança, cosméticos e itens de beleza só podem ser publicados quando estiverem novos, lacrados e sem uso. Para proteger quem recebe o item, essa categoria aceita apenas a condição "Novo".';
 
 $dados = [
     'categoria_id' => (int) ($_POST['categoria_id'] ?? ($categorias[0]['id'] ?? 0)),
@@ -30,6 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (strlen($dados['descricao']) < 20) {
             throw new RuntimeException('Descreva melhor o item para ajudar a comunidade a entender o que está sendo doado.');
+        }
+
+        if ((int) $dados['categoria_id'] === $categoriaCosmeticosId && $dados['condicao'] !== 'novo') {
+            throw new RuntimeException($mensagemBioseguranca);
         }
 
         $fotoPath = salvar_upload_item($_FILES['foto'] ?? []);
@@ -100,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="grid-2">
                         <label>
                             Categoria
-                            <select name="categoria_id" required>
+                            <select name="categoria_id" required data-category-select data-cosmetic-category-id="<?= $categoriaCosmeticosId ?>">
                                 <?php foreach ($categorias as $categoria): ?>
                                     <option value="<?= (int) $categoria['id'] ?>" <?= (int) $categoria['id'] === (int) $dados['categoria_id'] ? 'selected' : '' ?>>
                                         <?= e($categoria['nome']) ?>
@@ -111,12 +117,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <label>
                             Condição
-                            <select name="condicao" required>
+                            <select name="condicao" required data-condition-select>
                                 <option value="novo" <?= $dados['condicao'] === 'novo' ? 'selected' : '' ?>>Novo</option>
                                 <option value="seminovo" <?= $dados['condicao'] === 'seminovo' ? 'selected' : '' ?>>Seminovo</option>
                                 <option value="usado_bom" <?= $dados['condicao'] === 'usado_bom' ? 'selected' : '' ?>>Usado em bom estado</option>
                                 <option value="usado_regular" <?= $dados['condicao'] === 'usado_regular' ? 'selected' : '' ?>>Usado regular</option>
                             </select>
+                            <small class="muted soft-note" data-cosmetic-condition-note hidden><?= e($mensagemBioseguranca) ?></small>
                         </label>
                     </div>
 

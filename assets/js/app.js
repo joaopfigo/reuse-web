@@ -94,3 +94,40 @@
     codeInput.value = codeInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
   });
 })();
+
+(function () {
+  const categorySelect = document.querySelector('[data-category-select]');
+  const conditionSelect = document.querySelector('[data-condition-select]');
+  const note = document.querySelector('[data-cosmetic-condition-note]');
+  if (!categorySelect || !conditionSelect || !note) return;
+
+  const cosmeticCategoryId = categorySelect.dataset.cosmeticCategoryId;
+  const options = Array.from(conditionSelect.options);
+
+  const syncConditionRule = () => {
+    const isCosmeticCategory = categorySelect.value === cosmeticCategoryId;
+
+    options.forEach((option) => {
+      if (option.value !== 'novo') {
+        option.disabled = isCosmeticCategory;
+      }
+    });
+
+    if (isCosmeticCategory) {
+      conditionSelect.value = 'novo';
+      note.hidden = false;
+    } else {
+      note.hidden = true;
+    }
+  };
+
+  categorySelect.addEventListener('change', syncConditionRule);
+  conditionSelect.addEventListener('change', () => {
+    if (categorySelect.value === cosmeticCategoryId && conditionSelect.value !== 'novo') {
+      conditionSelect.value = 'novo';
+      note.hidden = false;
+    }
+  });
+
+  syncConditionRule();
+})();
