@@ -9,7 +9,7 @@ $item = ItemRepo::buscarPorId((int) ($_GET['id'] ?? 0));
 $erro = '';
 $sucesso = '';
 $categoriaCosmeticosId = 3;
-$mensagemBioseguranca = 'Por questões de biosegurança, cosméticos e itens de beleza só podem ser publicados quando estiverem novos, lacrados e sem uso. Para proteger quem recebe o item, essa categoria aceita apenas a condição "Novo".';
+$mensagemBioseguranca = 'Condição fixada em "Novo". Por questões de biosegurança, cosméticos e itens de beleza só podem ser publicados novos, lacrados e sem uso.';
 
 if (!$item || (int) $item['doadora_id'] !== (int) $usuario['id']) {
     $erro = 'Item não encontrado ou sem permissão para editar.';

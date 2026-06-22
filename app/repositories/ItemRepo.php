@@ -6,6 +6,8 @@ require_once __DIR__ . '/../config/db.php';
 
 class ItemRepo
 {
+    private const CATEGORIA_COSMETICOS_ID = 3;
+
     public static function categorias(): array
     {
         return db()->query(
@@ -26,6 +28,10 @@ class ItemRepo
 
     public static function criar(array $dados, ?string $fotoPath): int
     {
+        if ((int) $dados['categoria_id'] === self::CATEGORIA_COSMETICOS_ID) {
+            $dados['condicao'] = 'novo';
+        }
+
         $pdo = db();
         $pdo->beginTransaction();
 
@@ -76,9 +82,22 @@ class ItemRepo
                     continue;
                 }
 
-                $parametro = ':q' . $indice;
-                $condicoesBusca[] = '(i.titulo LIKE ' . $parametro . ' OR i.descricao LIKE ' . $parametro . ')';
-                $params[$parametro] = '%' . $termo . '%';
+                $tituloParametro = ':q' . $indice . '_titulo';
+                $descricaoParametro = ':q' . $indice . '_descricao';
+                $bairroParametro = ':q' . $indice . '_bairro';
+                $cidadeParametro = ':q' . $indice . '_cidade';
+                $valorBusca = '%' . $termo . '%';
+
+                $condicoesBusca[] = '(
+                    i.titulo LIKE ' . $tituloParametro . '
+                    OR i.descricao LIKE ' . $descricaoParametro . '
+                    OR i.bairro LIKE ' . $bairroParametro . '
+                    OR i.cidade LIKE ' . $cidadeParametro . '
+                )';
+                $params[$tituloParametro] = $valorBusca;
+                $params[$descricaoParametro] = $valorBusca;
+                $params[$bairroParametro] = $valorBusca;
+                $params[$cidadeParametro] = $valorBusca;
             }
 
             if ($condicoesBusca) {
@@ -128,6 +147,10 @@ class ItemRepo
 
     public static function atualizar(int $id, int $doadoraId, array $dados): bool
     {
+        if ((int) $dados['categoria_id'] === self::CATEGORIA_COSMETICOS_ID) {
+            $dados['condicao'] = 'novo';
+        }
+
         $sql = 'UPDATE itens
                 SET categoria_id = :categoria_id,
                     titulo = :titulo,

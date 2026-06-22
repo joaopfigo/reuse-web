@@ -121,6 +121,8 @@
       conditionSelect.value = 'novo';
       conditionSelect.disabled = true;
       conditionSelect.setAttribute('aria-disabled', 'true');
+      conditionSelect.setAttribute('title', 'Condição fixa para esta categoria');
+      conditionSelect.classList.add('is-locked');
       if (!hiddenCondition.isConnected) {
         conditionSelect.insertAdjacentElement('afterend', hiddenCondition);
       }
@@ -128,6 +130,8 @@
     } else {
       conditionSelect.disabled = false;
       conditionSelect.removeAttribute('aria-disabled');
+      conditionSelect.removeAttribute('title');
+      conditionSelect.classList.remove('is-locked');
       hiddenCondition.remove();
       note.hidden = true;
     }

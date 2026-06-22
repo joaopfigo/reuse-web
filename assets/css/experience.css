@@ -138,6 +138,15 @@
   color: #775f6d;
 }
 
+select.is-locked:disabled {
+  cursor: not-allowed;
+  color: #6f2945;
+  background-color: #f9e8ef;
+  border-color: #d8a5b8;
+  font-weight: 700;
+  opacity: 1;
+}
+
 .list-grid {
   display: grid;
   gap: 18px;
