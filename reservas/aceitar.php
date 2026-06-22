@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $usuario['nome'] . ' aceitou sua reserva de "' . $reserva['titulo'] . '". Local: ' . $local . ' | Horário: ' . $data . '.',
                 $reservaId
             );
-            flash_set('success', 'Reserva aceita. A receptora já foi notificada.');
+            flash_set('success', 'Reserva aceita. O(a) receptor(a) já foi notificado(a).');
             header('Location: ' . app_url('reservas/gerenciar.php'));
             exit;
         }
@@ -66,11 +66,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="ops-hero-main">
                 <span class="ops-kicker">Aceite da reserva</span>
                 <h1 class="ops-title"><?= e($reserva['titulo']) ?></h1>
-                <p class="ops-copy">Defina um local público e um horário claro para organizar a retirada com a receptora.</p>
+                <p class="ops-copy">Defina um local público e um horário claro para organizar a retirada com o(a) receptor(a).</p>
             </div>
             <div class="ops-hero-side">
                 <div class="ops-side-card">
-                    <span>Receptora</span>
+                    <span>Receptor(a)</span>
                     <strong><?= e($reserva['receptora_nome']) ?></strong>
                 </div>
             </div>
@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <ul class="guideline-list">
                         <li>Prefira locais com circulação de pessoas e acesso fácil.</li>
                         <li>Use referências claras, como entrada principal ou praça central.</li>
-                        <li>Depois da entrega, a receptora confirma com o código de 6 caracteres.</li>
+                        <li>Depois da entrega, o(a) receptor(a) confirma com o código de 6 caracteres.</li>
                     </ul>
                 </section>
             </aside>

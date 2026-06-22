@@ -30,12 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new RuntimeException('Preencha todos os campos obrigatórios.');
         }
 
-        if (strlen($dados['descricao']) < 20) {
-            throw new RuntimeException('Descreva melhor o item para ajudar a comunidade a entender o que está sendo doado.');
-        }
-
-        if ((int) $dados['categoria_id'] === $categoriaCosmeticosId && $dados['condicao'] !== 'novo') {
-            throw new RuntimeException($mensagemBioseguranca);
+        if ((int) $dados['categoria_id'] === $categoriaCosmeticosId) {
+            $dados['condicao'] = 'novo';
         }
 
         $fotoPath = salvar_upload_item($_FILES['foto'] ?? []);

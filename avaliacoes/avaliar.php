@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main class="container">
         <section class="panel stack">
             <h1>Avaliar entrega · <?= e($reserva['titulo']) ?></h1>
-            <p class="muted">Doadora: <?= e($reserva['doadora_nome']) ?></p>
+            <p class="muted">Doador(a): <?= e($reserva['doadora_nome']) ?></p>
 
             <?php foreach ($erros as $erro): ?>
                 <div class="alert error"><?= e($erro) ?></div>

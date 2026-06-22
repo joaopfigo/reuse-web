@@ -38,7 +38,7 @@ $reservas = ReservaRepo::minhasDaDoadora((int) $usuario['id']);
                     <div class="list-card-head">
                         <div>
                             <h2><?= e($r['titulo']) ?></h2>
-                            <p class="list-card-meta">Receptora: <strong><?= e($r['receptora_nome']) ?></strong> · <?= (int) $r['pontos'] ?> pontos</p>
+                            <p class="list-card-meta">Receptor(a): <strong><?= e($r['receptora_nome']) ?></strong> · <?= (int) $r['pontos'] ?> pontos</p>
                         </div>
                         <span class="<?= e(status_badge_class((string) $r['status'])) ?>"><?= e(status_label((string) $r['status'])) ?></span>
                     </div>
@@ -56,7 +56,7 @@ $reservas = ReservaRepo::minhasDaDoadora((int) $usuario['id']);
                             <?php if (!empty($r['codigo_confirmacao'])): ?>
                                 <div class="soft-note">
                                     <strong>Código de confirmação:</strong> <code><?= e($r['codigo_confirmacao']) ?></code><br>
-                                    <small class="muted">Mostre este código para a receptora apenas no momento da entrega.</small>
+                                    <small class="muted">Mostre este código para o(a) receptor(a) apenas no momento da entrega.</small>
                                 </div>
                             <?php endif; ?>
                         <?php endif; ?>
@@ -73,7 +73,7 @@ $reservas = ReservaRepo::minhasDaDoadora((int) $usuario['id']);
                         $reuniaoPassou = !empty($r['data_retirada']) && strtotime((string) $r['data_retirada']) < time();
                         $expirou = strtotime((string) $r['expira_em']) < time();
                         if ($r['status'] === 'aceita' && ($reuniaoPassou || $expirou)): ?>
-                            <form method="post" action="noshow.php" class="inline-form" onsubmit="return confirm('Confirmar que a receptora não compareceu? Isso pode levar ao bloqueio temporário da conta dela.');">
+                            <form method="post" action="noshow.php" class="inline-form" onsubmit="return confirm('Confirmar que o(a) receptor(a) não compareceu? Isso pode levar ao bloqueio temporário da conta.');">
                                 <?= csrf_input() ?>
                                 <input type="hidden" name="id" value="<?= (int) $r['id'] ?>">
                                 <button class="btn danger" type="submit">Registrar não comparecimento</button>

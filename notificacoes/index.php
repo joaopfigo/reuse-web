@@ -52,6 +52,9 @@ $notificacoes = NotificacaoRepo::listar((int) $usuario['id']);
                 <article class="notification-card <?= $n['lida'] ? '' : 'is-unread' ?>">
                     <p><?= e($n['mensagem']) ?></p>
                     <time><?= e(formatar_data_hora($n['criada_em'])) ?></time>
+                    <?php if (!empty($n['reserva_id']) && str_starts_with((string) $n['mensagem'], 'Nova mensagem')): ?>
+                        <a class="btn secondary" href="<?= e(app_url('reservas/chat.php?id=' . (int) $n['reserva_id'])) ?>">Abrir conversa</a>
+                    <?php endif; ?>
                 </article>
             <?php endforeach; ?>
         </section>

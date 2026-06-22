@@ -28,7 +28,7 @@ $doadoraResumo = $item ? UsuarioRepo::resumoPublico((int) $item['doadora_id']) :
                 <div class="ops-hero-main">
                     <span class="ops-kicker">Detalhe do item</span>
                     <h1 class="ops-title"><?= e($item['titulo']) ?></h1>
-                    <p class="ops-copy"><?= e($item['bairro']) ?> · Doadora: <?= e($item['doadora']) ?></p>
+                    <p class="ops-copy"><?= e($item['bairro']) ?> · Doador(a): <?= e($item['doadora']) ?></p>
                 </div>
                 <div class="ops-hero-side">
                     <span class="<?= e(status_badge_class((string) $item['status'])) ?>"><?= e(status_label((string) $item['status'])) ?></span>
@@ -86,7 +86,7 @@ $doadoraResumo = $item ? UsuarioRepo::resumoPublico((int) $item['doadora_id']) :
 
                     <section class="surface-panel">
                         <div class="section-header">
-                            <h2>Informações da doadora</h2>
+                            <h2>Informações do(a) doador(a)</h2>
                             <p>Um resumo rápido sobre quem publicou este item dentro da rede.</p>
                         </div>
 
@@ -110,6 +110,11 @@ $doadoraResumo = $item ? UsuarioRepo::resumoPublico((int) $item['doadora_id']) :
                             <div class="donor-stat">
                                 <span class="donor-stat-label">Itens doados</span>
                                 <strong class="donor-stat-value"><?= (int) ($doadoraResumo['itens_doados'] ?? 0) ?></strong>
+                            </div>
+
+                            <div class="donor-stat">
+                                <span class="donor-stat-label">Não comparecimentos</span>
+                                <strong class="donor-stat-value"><?= (int) ($doadoraResumo['no_show_count'] ?? 0) ?></strong>
                             </div>
                         </div>
                     </section>

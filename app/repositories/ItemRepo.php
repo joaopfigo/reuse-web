@@ -68,8 +68,22 @@ class ItemRepo
         $params = [];
 
         if (!empty($filtros['q'])) {
-            $where[] = '(i.titulo LIKE :q OR i.descricao LIKE :q)';
-            $params[':q'] = '%' . $filtros['q'] . '%';
+            $termos = preg_split('/\s+/', trim((string) $filtros['q'])) ?: [];
+            $condicoesBusca = [];
+
+            foreach ($termos as $indice => $termo) {
+                if ($termo === '') {
+                    continue;
+                }
+
+                $parametro = ':q' . $indice;
+                $condicoesBusca[] = '(i.titulo LIKE ' . $parametro . ' OR i.descricao LIKE ' . $parametro . ')';
+                $params[$parametro] = '%' . $termo . '%';
+            }
+
+            if ($condicoesBusca) {
+                $where[] = '(' . implode(' AND ', $condicoesBusca) . ')';
+            }
         }
 
         if (!empty($filtros['categoria_id'])) {

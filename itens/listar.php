@@ -133,7 +133,7 @@ $temFiltro = $filtros['q'] !== '' || $filtros['categoria_id'] !== '' || $filtros
                             </div>
                             <div class="item-body">
                                 <h2><?= e($item['titulo']) ?></h2>
-                                <p class="meta"><?= e($item['bairro']) ?> · Doadora: <?= e($item['doadora']) ?></p>
+                                <p class="meta"><?= e($item['bairro']) ?> · Doador(a): <?= e($item['doadora']) ?></p>
                                 <div class="badge-row">
                                     <span class="badge"><?= e($item['categoria']) ?></span>
                                     <span class="badge"><?= e(status_label((string) $item['condicao'])) ?></span>

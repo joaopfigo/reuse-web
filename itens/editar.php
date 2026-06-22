@@ -27,11 +27,10 @@ if (!$item || (int) $item['doadora_id'] !== (int) $usuario['id']) {
 
     if (!$dados['titulo'] || !$dados['descricao'] || !$dados['categoria_id'] || !$dados['bairro'] || $dados['pontos'] <= 0) {
         $erro = 'Preencha todos os campos obrigatórios.';
-    } elseif (strlen($dados['descricao']) < 20) {
-        $erro = 'A descrição precisa ter pelo menos 20 caracteres.';
-    } elseif ((int) $dados['categoria_id'] === $categoriaCosmeticosId && $dados['condicao'] !== 'novo') {
-        $erro = $mensagemBioseguranca;
     } else {
+        if ((int) $dados['categoria_id'] === $categoriaCosmeticosId) {
+            $dados['condicao'] = 'novo';
+        }
         ItemRepo::atualizar((int) $item['id'], (int) $usuario['id'], $dados);
         $item = ItemRepo::buscarPorId((int) $item['id']);
         $sucesso = 'Item atualizado.';

@@ -45,7 +45,7 @@ $reservas = ReservaRepo::minhasDaReceptora((int) $usuario['id']);
                     <div class="list-card-head">
                         <div>
                             <h2><?= e($r['titulo']) ?></h2>
-                            <p class="list-card-meta">Doadora: <?= e($r['doadora']) ?> · <?= (int) $r['pontos'] ?> pontos</p>
+                            <p class="list-card-meta">Doador(a): <?= e($r['doadora']) ?> · <?= (int) $r['pontos'] ?> pontos</p>
                         </div>
                         <span class="<?= e(status_badge_class((string) $r['status'])) ?>"><?= e(status_label((string) $r['status'])) ?></span>
                     </div>
@@ -78,7 +78,7 @@ $reservas = ReservaRepo::minhasDaReceptora((int) $usuario['id']);
                         <?php endif; ?>
 
                         <?php if ($r['status'] === 'entregue'): ?>
-                            <a class="btn" href="../avaliacoes/avaliar.php?reserva_id=<?= (int) $r['id'] ?>">Avaliar doadora</a>
+                            <a class="btn" href="../avaliacoes/avaliar.php?reserva_id=<?= (int) $r['id'] ?>">Avaliar doador(a)</a>
                         <?php endif; ?>
 
                         <?php if (in_array($r['status'], ['aceita', 'entregue', 'no_show'], true)): ?>

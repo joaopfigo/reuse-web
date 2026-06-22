@@ -103,6 +103,10 @@
 
   const cosmeticCategoryId = categorySelect.dataset.cosmeticCategoryId;
   const options = Array.from(conditionSelect.options);
+  const hiddenCondition = document.createElement('input');
+  hiddenCondition.type = 'hidden';
+  hiddenCondition.name = conditionSelect.name;
+  hiddenCondition.value = 'novo';
 
   const syncConditionRule = () => {
     const isCosmeticCategory = categorySelect.value === cosmeticCategoryId;
@@ -115,8 +119,16 @@
 
     if (isCosmeticCategory) {
       conditionSelect.value = 'novo';
+      conditionSelect.disabled = true;
+      conditionSelect.setAttribute('aria-disabled', 'true');
+      if (!hiddenCondition.isConnected) {
+        conditionSelect.insertAdjacentElement('afterend', hiddenCondition);
+      }
       note.hidden = false;
     } else {
+      conditionSelect.disabled = false;
+      conditionSelect.removeAttribute('aria-disabled');
+      hiddenCondition.remove();
       note.hidden = true;
     }
   };

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../app/helpers/auth.php';
 require_once __DIR__ . '/../app/helpers/layout.php';
 require_once __DIR__ . '/../app/repositories/ReservaRepo.php';
+require_once __DIR__ . '/../app/repositories/NotificacaoRepo.php';
 require_once __DIR__ . '/../app/config/db.php';
 
 $usuario = exigir_login();
@@ -21,15 +22,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     validar_csrf_post();
     $mensagem = trim($_POST['mensagem'] ?? '');
     if ($mensagem !== '') {
-        $stmt = db()->prepare(
-            'INSERT INTO chat_mensagens (reserva_id, remetente_id, mensagem)
-             VALUES (:reserva_id, :remetente_id, :mensagem)'
-        );
-        $stmt->execute([
-            ':reserva_id' => $reservaId,
-            ':remetente_id' => $usuario['id'],
-            ':mensagem' => $mensagem,
-        ]);
+        $pdo = db();
+        $destinatarioId = $ehDoadora
+            ? (int) $reserva['receptora_id']
+            : (int) $reserva['doadora_id'];
+
+        try {
+            $pdo->beginTransaction();
+
+            $stmt = $pdo->prepare(
+                'INSERT INTO chat_mensagens (reserva_id, remetente_id, mensagem)
+                 VALUES (:reserva_id, :remetente_id, :mensagem)'
+            );
+            $stmt->execute([
+                ':reserva_id' => $reservaId,
+                ':remetente_id' => $usuario['id'],
+                ':mensagem' => $mensagem,
+            ]);
+
+            NotificacaoRepo::criar(
+                $destinatarioId,
+                'reserva',
+                'Nova mensagem de ' . $usuario['nome'] . ' sobre o item "' . $reserva['titulo'] . '".',
+                $reservaId
+            );
+
+            $pdo->commit();
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            flash_set('error', 'Não foi possível enviar a mensagem. Tente novamente.');
+        }
     }
     header('Location: ' . app_url('reservas/chat.php?id=' . $reservaId));
     exit;
@@ -72,7 +96,7 @@ $mensagens = $stmt->fetchAll();
             <div class="surface-panel chat-panel">
                 <div class="section-header">
                     <h2>Mensagens</h2>
-                    <p>Doadora: <?= e($reserva['doadora_nome']) ?> · Receptora: <?= e($reserva['receptora_nome']) ?></p>
+                    <p>Doador(a): <?= e($reserva['doadora_nome']) ?> · Receptor(a): <?= e($reserva['receptora_nome']) ?></p>
                 </div>
 
                 <div class="chat-toolbar muted">Mantenha a conversa focada em local, horário e confirmação da retirada.</div>

@@ -69,7 +69,7 @@ try {
         $reservaId
     );
 
-    flash_set('success', 'Item reservado. Aguarde a doadora definir local e horário de retirada.');
+    flash_set('success', 'Item reservado. Aguarde o(a) doador(a) definir local e horário de retirada.');
     header('Location: ' . app_url('reservas/minhas.php'));
     exit;
 } catch (Throwable $e) {

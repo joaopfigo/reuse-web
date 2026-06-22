@@ -25,9 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     validar_csrf_post();
 
     if (!$codigo) {
-        $erros[] = 'Digite o código fornecido pela doadora.';
+        $erros[] = 'Digite o código fornecido pelo(a) doador(a).';
     } elseif ($codigo !== $reserva['codigo_confirmacao']) {
-        $erros[] = 'Código incorreto. Confirme novamente com a doadora.';
+        $erros[] = 'Código incorreto. Confirme novamente com o(a) doador(a).';
     } else {
         PontosService::confirmarEntrega($reservaId);
 
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="ops-hero-main">
                 <span class="ops-kicker">Confirmação da entrega</span>
                 <h1 class="ops-title"><?= e($reserva['titulo']) ?></h1>
-                <p class="ops-copy">Finalize a retirada com o código informado pela doadora para atualizar corretamente os pontos do sistema.</p>
+                <p class="ops-copy">Finalize a retirada com o código informado pelo(a) doador(a) para atualizar corretamente os pontos do sistema.</p>
             </div>
         </section>
 
@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <ul class="guideline-list">
                         <li>Confira se o item foi realmente entregue no encontro combinado.</li>
-                        <li>Peça o código diretamente à doadora no momento da retirada.</li>
+                        <li>Peça o código diretamente ao(à) doador(a) no momento da retirada.</li>
                         <li>Depois da confirmação, os pontos são atualizados automaticamente.</li>
                     </ul>
                 </section>

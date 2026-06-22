@@ -72,8 +72,9 @@ class UsuarioRepo
                     SELECT COUNT(*)
                     FROM itens i
                     WHERE i.doadora_id = u.id
-                      AND i.status <> "cancelado"
-                ) AS itens_doados
+                      AND i.status = "entregue"
+                ) AS itens_doados,
+                u.no_show_count
              FROM usuarios u
              WHERE u.id = :id AND u.ativo = 1'
         );
