@@ -29,18 +29,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($codigo !== $reserva['codigo_confirmacao']) {
         $erros[] = 'Código incorreto. Confirme novamente com o(a) doador(a).';
     } else {
-        PontosService::confirmarEntrega($reservaId);
+        try {
+            PontosService::confirmarEntrega($reservaId);
 
-        NotificacaoRepo::criar(
-            (int) $reserva['doadora_id'],
-            'confirmacao',
-            $usuario['nome'] . ' confirmou o recebimento de "' . $reserva['titulo'] . '". Seus pontos foram creditados.',
-            $reservaId
-        );
+            NotificacaoRepo::criar(
+                (int) $reserva['doadora_id'],
+                'confirmacao',
+                $usuario['nome'] . ' confirmou o recebimento de "' . $reserva['titulo'] . '". Seus pontos foram creditados.',
+                $reservaId
+            );
 
-        flash_set('success', 'Entrega confirmada com sucesso. Os pontos já foram atualizados.');
-        header('Location: ' . app_url('pontos/carteira.php'));
-        exit;
+            flash_set('success', 'Entrega confirmada com sucesso. Os pontos já foram atualizados.');
+            header('Location: ' . app_url('pontos/carteira.php'));
+            exit;
+        } catch (Throwable $erroConfirmacao) {
+            $erros[] = $erroConfirmacao->getMessage();
+        }
     }
 }
 ?>
@@ -51,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Confirmar entrega</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/experience.css?v=20260615">
+    <link rel="stylesheet" href="../assets/css/experience.css?v=20260624">
 </head>
 <body>
     <?php render_topbar($usuario); ?>

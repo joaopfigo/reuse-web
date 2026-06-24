@@ -527,6 +527,14 @@ textarea {
 
 .btn:active { transform: scale(0.97); }
 
+.btn:disabled,
+.btn[disabled] {
+  cursor: not-allowed;
+  opacity: 0.58;
+  transform: none;
+  box-shadow: none;
+}
+
 /* ── Primário: verde cheio ── */
 .btn.primary {
   background: var(--clr-primary);
@@ -937,6 +945,21 @@ textarea {
   gap: var(--sp-2);
 }
 
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0;
+}
+
+.pagination-status {
+  color: var(--clr-muted);
+  font-weight: 800;
+  font-size: var(--fz-sm);
+}
+
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -1019,13 +1042,14 @@ textarea {
   padding: var(--sp-3);
   min-height: 120px;
   display: grid;
-  place-items: center;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: var(--sp-3);
   background: rgba(255, 255, 255, 0.45);
 }
 
 .image-preview img {
-  max-width: 100%;
-  max-height: 220px;
+  width: 100%;
+  aspect-ratio: 1;
   object-fit: cover;
   border-radius: var(--r-md);
 }

@@ -64,40 +64,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Avaliar entrega</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/experience.css?v=20260624">
 </head>
 <body>
     <?php render_topbar($usuario); ?>
-    <main class="container">
-        <section class="panel stack">
-            <h1>Avaliar entrega · <?= e($reserva['titulo']) ?></h1>
-            <p class="muted">Doador(a): <?= e($reserva['doadora_nome']) ?></p>
-
-            <?php foreach ($erros as $erro): ?>
-                <div class="alert error"><?= e($erro) ?></div>
-            <?php endforeach; ?>
-
-            <form method="post" class="form-card">
-                <?= csrf_input() ?>
-                <label>
-                    Nota
-                    <select name="nota" required>
-                        <option value="">Selecione...</option>
-                        <?php for ($i = 1; $i <= 5; $i++): ?>
-                            <option value="<?= $i ?>" <?= ((int) ($_POST['nota'] ?? 0)) === $i ? 'selected' : '' ?>>
-                                <?= $i ?> ★
-                            </option>
-                        <?php endfor; ?>
-                    </select>
-                </label>
-                <label>
-                    Comentário (opcional)
-                    <textarea name="comentario" maxlength="300" rows="3"><?= e($_POST['comentario'] ?? '') ?></textarea>
-                </label>
-                <div class="action-row">
-                    <button type="submit" class="btn primary">Enviar avaliação</button>
-                    <a href="../reservas/minhas.php" class="btn">Cancelar</a>
+    <main class="container ops-page">
+        <section class="ops-hero compact">
+            <div class="ops-hero-main">
+                <span class="ops-kicker">Reputação da comunidade</span>
+                <h1 class="ops-title">Avaliar entrega</h1>
+                <p class="ops-copy">Conte como foi a experiência da retirada para fortalecer a confiança entre participantes.</p>
+            </div>
+            <div class="ops-hero-side">
+                <div class="ops-side-card">
+                    <span>Item recebido</span>
+                    <strong><?= e($reserva['titulo']) ?></strong>
                 </div>
+            </div>
+        </section>
+
+        <section class="form-layout">
+            <form method="post" class="form-main">
+                <section class="surface-panel">
+                    <div class="section-header">
+                        <h2>Como foi a entrega?</h2>
+                        <p>Doador(a): <strong><?= e($reserva['doadora_nome']) ?></strong>. Sua avaliação aparece no histórico público da pessoa avaliada.</p>
+                    </div>
+
+                    <?php foreach ($erros as $erro): ?>
+                        <div class="alert error"><?= e($erro) ?></div>
+                    <?php endforeach; ?>
+
+                    <?= csrf_input() ?>
+                    <label>
+                        Nota
+                        <select name="nota" required>
+                            <option value="">Selecione...</option>
+                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                <option value="<?= $i ?>" <?= ((int) ($_POST['nota'] ?? 0)) === $i ? 'selected' : '' ?>>
+                                    <?= $i ?> estrela<?= $i > 1 ? 's' : '' ?>
+                                </option>
+                            <?php endfor; ?>
+                        </select>
+                    </label>
+                    <label>
+                        Comentário (opcional)
+                        <textarea name="comentario" maxlength="300" rows="4" placeholder="Ex.: comunicação clara, item conforme descrito, encontro pontual..."><?= e($_POST['comentario'] ?? '') ?></textarea>
+                    </label>
+                    <div class="list-card-actions">
+                        <button type="submit" class="btn primary">Enviar avaliação</button>
+                        <a href="../reservas/minhas.php" class="btn">Cancelar</a>
+                    </div>
+                </section>
             </form>
+
+            <aside class="form-side">
+                <section class="surface-panel">
+                    <div class="section-header">
+                        <h2>Por que avaliar?</h2>
+                        <p>A reputação ajuda outras pessoas a tomar decisões com mais segurança.</p>
+                    </div>
+                    <ul class="guideline-list">
+                        <li>Considere pontualidade, comunicação e fidelidade da descrição.</li>
+                        <li>Evite expor dados pessoais ou local exato do encontro.</li>
+                        <li>Use a denúncia apenas para situações que exigem análise de segurança.</li>
+                    </ul>
+                </section>
+            </aside>
         </section>
     </main>
 </body>

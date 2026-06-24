@@ -6,6 +6,27 @@ require_once __DIR__ . '/../config/db.php';
 
 class ReservaRepo
 {
+    public static function pontosReservados(int $usuarioId, ?PDO $pdo = null): int
+    {
+        $pdo ??= db();
+
+        $stmt = $pdo->prepare(
+            'SELECT COALESCE(SUM(i.pontos), 0)
+             FROM reservas r
+             JOIN itens i ON i.id = r.item_id
+             WHERE r.receptora_id = :usuario_id
+               AND r.status IN ("pendente", "aceita")'
+        );
+        $stmt->execute([':usuario_id' => $usuarioId]);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    public static function saldoDisponivel(array $usuario, ?PDO $pdo = null): int
+    {
+        return max(0, (int) ($usuario['saldo_pontos'] ?? 0) - self::pontosReservados((int) $usuario['id'], $pdo));
+    }
+
     public static function criar(int $itemId, int $receptoraId): int
     {
         $codigo = strtoupper(substr(bin2hex(random_bytes(3)), 0, 6));

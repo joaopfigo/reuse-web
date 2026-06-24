@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Cadastro</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/experience.css?v=20260615">
+    <link rel="stylesheet" href="assets/css/experience.css?v=20260624">
 </head>
 <body class="auth-page">
     <main class="auth-shell">

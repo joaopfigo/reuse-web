@@ -29,6 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if (!$data) {
         $erros[] = 'Informe a data e o horário.';
+    } elseif (strtotime($data) !== false && strtotime($data) < time()) {
+        $erros[] = 'Escolha uma data e horário futuros para a retirada.';
     }
 
     if (!$erros) {
@@ -57,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Aceitar reserva</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/experience.css?v=20260615">
+    <link rel="stylesheet" href="../assets/css/experience.css?v=20260624">
 </head>
 <body>
     <?php render_topbar($usuario); ?>

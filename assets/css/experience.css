@@ -227,9 +227,13 @@ select.is-locked:disabled {
   font-size: 0.83rem;
 }
 
+.notification-card .btn {
+  justify-self: start;
+}
+
 .wallet-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 18px;
 }
 
@@ -348,6 +352,21 @@ select.is-locked:disabled {
   font-weight: 700;
 }
 
+.detail-thumb-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.detail-thumb-grid img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1px solid rgba(234, 214, 223, 0.92);
+  box-shadow: 0 10px 22px rgba(98, 60, 79, 0.05);
+}
+
 .pill-row {
   display: flex;
   flex-wrap: wrap;
@@ -421,6 +440,56 @@ select.is-locked:disabled {
 .donor-stat-value {
   color: #3a2632;
   line-height: 1.5;
+}
+
+.trust-note {
+  display: grid;
+  gap: 4px;
+}
+
+.trust-note span {
+  color: #7a6270;
+  line-height: 1.65;
+}
+
+.rating-stars {
+  display: block;
+  color: #d1913a;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+}
+
+.impact-filter {
+  max-width: 360px;
+}
+
+.mini-bars {
+  display: grid;
+  gap: 14px;
+}
+
+.mini-bar-row {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) 42px;
+  gap: 10px;
+  align-items: center;
+  color: #745d69;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.mini-bar-track {
+  overflow: hidden;
+  height: 10px;
+  border-radius: 999px;
+  background: #f2e3ea;
+}
+
+.mini-bar-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #b45d7f 0%, #e4a574 100%);
 }
 
 .form-main .surface-panel,
@@ -567,5 +636,17 @@ select.is-locked:disabled {
   .list-card-actions,
   .auth-links {
     flex-direction: column;
+  }
+
+  .pagination {
+    align-items: stretch;
+  }
+
+  .pagination .btn {
+    width: 100%;
+  }
+
+  .mini-bar-row {
+    grid-template-columns: 1fr;
   }
 }

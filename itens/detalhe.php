@@ -3,10 +3,21 @@ require_once __DIR__ . '/../app/helpers/auth.php';
 require_once __DIR__ . '/../app/helpers/layout.php';
 require_once __DIR__ . '/../app/repositories/ItemRepo.php';
 require_once __DIR__ . '/../app/repositories/UsuarioRepo.php';
+require_once __DIR__ . '/../app/repositories/ReservaRepo.php';
 
 $usuario = exigir_login();
 $item = ItemRepo::buscarPorId((int) ($_GET['id'] ?? 0));
+$fotos = $item ? ItemRepo::fotosDoItem((int) $item['id']) : [];
 $doadoraResumo = $item ? UsuarioRepo::resumoPublico((int) $item['doadora_id']) : null;
+$saldoDisponivel = ReservaRepo::saldoDisponivel($usuario);
+$podeReservar = $item
+    && (int) $item['doadora_id'] !== (int) $usuario['id']
+    && $item['status'] === 'disponivel'
+    && $saldoDisponivel >= (int) $item['pontos'];
+$avaliacaoMedia = $doadoraResumo['avaliacao_media'] ?? null;
+$itensDoados = (int) ($doadoraResumo['itens_doados'] ?? 0);
+$noShows = (int) ($doadoraResumo['no_show_count'] ?? 0);
+$seloConfianca = $itensDoados >= 3 && $noShows === 0 ? 'Conta confiável' : 'Perfil em construção';
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -15,7 +26,7 @@ $doadoraResumo = $item ? UsuarioRepo::resumoPublico((int) $item['doadora_id']) :
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Detalhe do item</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/experience.css?v=20260615">
+    <link rel="stylesheet" href="../assets/css/experience.css?v=20260624">
 </head>
 <body>
     <?php render_topbar($usuario); ?>
@@ -38,12 +49,20 @@ $doadoraResumo = $item ? UsuarioRepo::resumoPublico((int) $item['doadora_id']) :
             <section class="detail-layout">
                 <div class="detail-main">
                     <div class="detail-image-frame">
-                        <?php if ($item['foto']): ?>
-                            <img src="../<?= e($item['foto']) ?>" alt="Foto de <?= e($item['titulo']) ?>">
+                        <?php if ($fotos): ?>
+                            <img src="../<?= e($fotos[0]['caminho']) ?>" alt="Foto de <?= e($item['titulo']) ?>">
                         <?php else: ?>
                             <div class="detail-placeholder">Sem foto disponível</div>
                         <?php endif; ?>
                     </div>
+
+                    <?php if (count($fotos) > 1): ?>
+                        <div class="detail-thumb-grid">
+                            <?php foreach ($fotos as $foto): ?>
+                                <img src="../<?= e($foto['caminho']) ?>" alt="Foto adicional de <?= e($item['titulo']) ?>">
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
 
                     <div class="content-card stack-note">
                         <div class="section-header">
@@ -73,11 +92,20 @@ $doadoraResumo = $item ? UsuarioRepo::resumoPublico((int) $item['doadora_id']) :
                             </div>
                         <?php else: ?>
                             <div class="soft-note">Ao reservar, você passa a acompanhar local, horário e confirmação em "Minhas reservas".</div>
+                            <?php if (!$podeReservar): ?>
+                                <div class="alert warning">
+                                    <?php if ($item['status'] !== 'disponivel'): ?>
+                                        Este item não está disponível para reserva no momento.
+                                    <?php elseif ($saldoDisponivel < (int) $item['pontos']): ?>
+                                        Você tem <?= $saldoDisponivel ?> ponto(s) livres, mas este item custa <?= (int) $item['pontos'] ?> ponto(s).
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
                             <div class="list-card-actions">
                                 <form method="post" action="../reservas/reservar.php" class="inline-form">
                                     <?= csrf_input() ?>
                                     <input type="hidden" name="item_id" value="<?= (int) $item['id'] ?>">
-                                    <button class="btn primary" type="submit">Reservar item</button>
+                                    <button class="btn primary" type="submit" <?= $podeReservar ? '' : 'disabled' ?>>Reservar item</button>
                                 </form>
                                 <a class="btn danger" href="../denuncias/reportar.php?item_id=<?= (int) $item['id'] ?>">Denunciar item</a>
                             </div>
@@ -91,6 +119,11 @@ $doadoraResumo = $item ? UsuarioRepo::resumoPublico((int) $item['doadora_id']) :
                         </div>
 
                         <div class="donor-info-grid">
+                            <div class="soft-note trust-note">
+                                <strong><?= e($seloConfianca) ?></strong>
+                                <span>Resumo calculado a partir de entregas confirmadas, avaliações e não comparecimentos registrados.</span>
+                            </div>
+
                             <div class="donor-stat">
                                 <span class="donor-stat-label">Nome</span>
                                 <strong class="donor-stat-value"><?= e($doadoraResumo['nome'] ?? $item['doadora']) ?></strong>
@@ -99,8 +132,9 @@ $doadoraResumo = $item ? UsuarioRepo::resumoPublico((int) $item['doadora_id']) :
                             <div class="donor-stat">
                                 <span class="donor-stat-label">Avaliação média</span>
                                 <strong class="donor-stat-value">
-                                    <?php if (!empty($doadoraResumo['avaliacao_media'])): ?>
-                                        <?= number_format((float) $doadoraResumo['avaliacao_media'], 1, ',', '.') ?> / 5
+                                    <?php if ($avaliacaoMedia !== null): ?>
+                                        <span class="rating-stars" aria-label="Avaliação média <?= e(number_format((float) $avaliacaoMedia, 1, ',', '.')) ?> de 5">★★★★★</span>
+                                        <?= number_format((float) $avaliacaoMedia, 1, ',', '.') ?> / 5
                                     <?php else: ?>
                                         Ainda sem avaliações
                                     <?php endif; ?>
@@ -109,12 +143,12 @@ $doadoraResumo = $item ? UsuarioRepo::resumoPublico((int) $item['doadora_id']) :
 
                             <div class="donor-stat">
                                 <span class="donor-stat-label">Itens doados</span>
-                                <strong class="donor-stat-value"><?= (int) ($doadoraResumo['itens_doados'] ?? 0) ?></strong>
+                                <strong class="donor-stat-value"><?= $itensDoados ?></strong>
                             </div>
 
                             <div class="donor-stat">
                                 <span class="donor-stat-label">Não comparecimentos</span>
-                                <strong class="donor-stat-value"><?= (int) ($doadoraResumo['no_show_count'] ?? 0) ?></strong>
+                                <strong class="donor-stat-value"><?= $noShows ?></strong>
                             </div>
                         </div>
                     </section>

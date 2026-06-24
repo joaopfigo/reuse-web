@@ -34,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dados['condicao'] = 'novo';
         }
 
-        $fotoPath = salvar_upload_item($_FILES['foto'] ?? []);
-        ItemRepo::criar($dados, $fotoPath);
+        $fotoPaths = salvar_uploads_item($_FILES['fotos'] ?? []);
+        ItemRepo::criar($dados, $fotoPaths);
         $sucesso = 'Item cadastrado com sucesso.';
         $dados['titulo'] = '';
         $dados['descricao'] = '';
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Cadastrar item</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/experience.css?v=20260615">
+    <link rel="stylesheet" href="../assets/css/experience.css?v=20260624">
 </head>
 <body>
     <?php render_topbar($usuario); ?>
@@ -129,8 +129,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </label>
 
                     <label>
-                        Foto do item (JPG, PNG ou WEBP até 2 MB)
-                        <input type="file" name="foto" accept="image/jpeg,image/png,image/webp" data-image-preview-input>
+                        Fotos do item (até 5 imagens JPG, PNG ou WEBP de 2 MB cada)
+                        <input type="file" name="fotos[]" accept="image/jpeg,image/png,image/webp" multiple data-image-preview-input>
                     </label>
                     <div class="image-preview" data-image-preview hidden></div>
 

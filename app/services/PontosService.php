@@ -16,19 +16,69 @@ class PontosService
                     FROM reservas r
                     JOIN itens i ON i.id = r.item_id
                     WHERE r.id = :reserva_id
+                      AND r.status = "aceita"
+                      AND i.status = "reservado"
                     FOR UPDATE';
             $stmt = $pdo->prepare($sql);
             $stmt->execute([':reserva_id' => $reservaId]);
             $reserva = $stmt->fetch();
 
             if (!$reserva) {
-                throw new RuntimeException('Reserva nao encontrada.');
+                throw new RuntimeException('Reserva invalida, ja confirmada ou fora do estado esperado.');
             }
 
-            $pdo->prepare('UPDATE reservas SET status = "entregue", atualizada_em = NOW() WHERE id = :id')
-                ->execute([':id' => $reservaId]);
-            $pdo->prepare('UPDATE itens SET status = "entregue", atualizado_em = NOW() WHERE id = :id')
-                ->execute([':id' => $reserva['item_id']]);
+            $stmtDuplicidade = $pdo->prepare(
+                'SELECT COUNT(*)
+                 FROM transacoes_pontos
+                 WHERE reserva_id = :reserva_id
+                   AND tipo IN ("credito", "debito")'
+            );
+            $stmtDuplicidade->execute([':reserva_id' => $reservaId]);
+
+            if ((int) $stmtDuplicidade->fetchColumn() > 0) {
+                throw new RuntimeException('Esta entrega ja possui movimentacao de pontos registrada.');
+            }
+
+            $stmtUsuarios = $pdo->prepare(
+                'SELECT id, saldo_pontos
+                 FROM usuarios
+                 WHERE id IN (:doadora_id, :receptora_id)
+                 FOR UPDATE'
+            );
+            $stmtUsuarios->execute([
+                ':doadora_id' => $reserva['doadora_id'],
+                ':receptora_id' => $reserva['receptora_id'],
+            ]);
+            $usuarios = [];
+            foreach ($stmtUsuarios->fetchAll() as $usuario) {
+                $usuarios[(int) $usuario['id']] = $usuario;
+            }
+
+            if (!isset($usuarios[(int) $reserva['doadora_id']], $usuarios[(int) $reserva['receptora_id']])) {
+                throw new RuntimeException('Participantes da reserva nao encontrados.');
+            }
+
+            if ((int) $usuarios[(int) $reserva['receptora_id']]['saldo_pontos'] < (int) $reserva['pontos']) {
+                throw new RuntimeException('Saldo insuficiente para confirmar esta entrega.');
+            }
+
+            $stmtReserva = $pdo->prepare(
+                'UPDATE reservas
+                 SET status = "entregue", atualizada_em = NOW()
+                 WHERE id = :id AND status = "aceita"'
+            );
+            $stmtReserva->execute([':id' => $reservaId]);
+
+            $stmtItem = $pdo->prepare(
+                'UPDATE itens
+                 SET status = "entregue", atualizado_em = NOW()
+                 WHERE id = :id AND status = "reservado"'
+            );
+            $stmtItem->execute([':id' => $reserva['item_id']]);
+
+            if ($stmtReserva->rowCount() !== 1 || $stmtItem->rowCount() !== 1) {
+                throw new RuntimeException('Nao foi possivel confirmar a entrega no estado atual.');
+            }
 
             $pdo->prepare('UPDATE usuarios SET saldo_pontos = saldo_pontos + :pontos WHERE id = :id')
                 ->execute([':pontos' => $reserva['pontos'], ':id' => $reserva['doadora_id']]);

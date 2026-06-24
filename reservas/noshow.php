@@ -47,6 +47,13 @@ try {
             'Sua conta foi bloqueada por 7 dias devido a não comparecimentos repetidos.',
             $reservaId
         );
+    } else {
+        NotificacaoRepo::criar(
+            (int) $reserva['receptora_id'],
+            'noshow',
+            'Foi registrado não comparecimento na retirada do item "' . $reserva['titulo'] . '". Revise seus combinados para evitar bloqueios.',
+            $reservaId
+        );
     }
 
     $pdo->commit();

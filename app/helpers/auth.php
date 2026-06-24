@@ -106,10 +106,11 @@ function exigir_login(): array
         exit;
     }
 
-    if (empty($_SESSION['expirou_reservas'])) {
+    $ultimaExpiracao = (int) ($_SESSION['ultima_expiracao_reservas'] ?? 0);
+    if ($ultimaExpiracao < time() - 60) {
         require_once __DIR__ . '/../repositories/ReservaRepo.php';
         ReservaRepo::expirarVencidas();
-        $_SESSION['expirou_reservas'] = true;
+        $_SESSION['ultima_expiracao_reservas'] = time();
     }
 
     return $usuario;

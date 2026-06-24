@@ -36,8 +36,8 @@ if (!empty($usuario['bloqueada_ate']) && strtotime($usuario['bloqueada_ate']) > 
     exit;
 }
 
-if ((int) $usuario['saldo_pontos'] < (int) $item['pontos']) {
-    flash_set('error', 'Saldo insuficiente. Você tem ' . $usuario['saldo_pontos'] . ' pontos e o item custa ' . $item['pontos'] . ' pontos.');
+if (ReservaRepo::saldoDisponivel($usuario) < (int) $item['pontos']) {
+    flash_set('error', 'Saldo disponível insuficiente. Você tem ' . ReservaRepo::saldoDisponivel($usuario) . ' pontos livres e o item custa ' . $item['pontos'] . ' pontos.');
     header('Location: ' . app_url('itens/detalhe.php?id=' . $itemId));
     exit;
 }
@@ -46,13 +46,47 @@ $pdo = db();
 $pdo->beginTransaction();
 
 try {
-    $stmt = $pdo->prepare('SELECT id FROM itens WHERE id = :id AND status = "disponivel" FOR UPDATE');
-    $stmt->execute([':id' => $itemId]);
+    $stmtUsuario = $pdo->prepare(
+        'SELECT id, saldo_pontos, bloqueada_ate
+         FROM usuarios
+         WHERE id = :id AND ativo = 1
+         FOR UPDATE'
+    );
+    $stmtUsuario->execute([':id' => $usuario['id']]);
+    $usuarioBloqueado = $stmtUsuario->fetch();
 
-    if (!$stmt->fetch()) {
+    if (!$usuarioBloqueado) {
+        throw new RuntimeException('Usuário inválido.');
+    }
+
+    if (!empty($usuarioBloqueado['bloqueada_ate']) && strtotime($usuarioBloqueado['bloqueada_ate']) > time()) {
+        $pdo->rollBack();
+        flash_set('error', 'Sua conta está temporariamente bloqueada por não comparecimento. Liberação em: ' . formatar_data_hora($usuarioBloqueado['bloqueada_ate']));
+        header('Location: ' . app_url('itens/detalhe.php?id=' . $itemId));
+        exit;
+    }
+
+    $stmt = $pdo->prepare(
+        'SELECT id, doadora_id, titulo, pontos, status
+         FROM itens
+         WHERE id = :id AND status = "disponivel"
+         FOR UPDATE'
+    );
+    $stmt->execute([':id' => $itemId]);
+    $itemBloqueado = $stmt->fetch();
+
+    if (!$itemBloqueado) {
         $pdo->rollBack();
         flash_set('error', 'Este item acabou de ser reservado por outra pessoa.');
         header('Location: ' . app_url('itens/listar.php'));
+        exit;
+    }
+
+    $saldoDisponivel = (int) $usuarioBloqueado['saldo_pontos'] - ReservaRepo::pontosReservados((int) $usuario['id'], $pdo);
+    if ($saldoDisponivel < (int) $itemBloqueado['pontos']) {
+        $pdo->rollBack();
+        flash_set('error', 'Saldo disponível insuficiente. Você possui ' . max(0, $saldoDisponivel) . ' pontos livres e este item custa ' . $itemBloqueado['pontos'] . ' pontos.');
+        header('Location: ' . app_url('itens/detalhe.php?id=' . $itemId));
         exit;
     }
 
@@ -63,9 +97,9 @@ try {
     $pdo->commit();
 
     NotificacaoRepo::criar(
-        (int) $item['doadora_id'],
+        (int) $itemBloqueado['doadora_id'],
         'reserva',
-        $usuario['nome'] . ' reservou seu item "' . $item['titulo'] . '".',
+        $usuario['nome'] . ' reservou seu item "' . $itemBloqueado['titulo'] . '".',
         $reservaId
     );
 

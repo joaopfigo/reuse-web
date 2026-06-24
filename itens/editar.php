@@ -48,7 +48,7 @@ $condicaoAtual = $item
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Editar item</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/experience.css?v=20260615">
+    <link rel="stylesheet" href="../assets/css/experience.css?v=20260624">
 </head>
 <body>
     <?php render_topbar($usuario); ?>

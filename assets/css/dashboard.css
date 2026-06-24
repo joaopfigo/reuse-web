@@ -314,6 +314,39 @@
   border: 1px solid #f0dfe7;
 }
 
+.impact-filter {
+  max-width: 360px;
+}
+
+.mini-bars {
+  display: grid;
+  gap: 14px;
+}
+
+.mini-bar-row {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) 42px;
+  gap: 10px;
+  align-items: center;
+  color: #745d69;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.mini-bar-track {
+  overflow: hidden;
+  height: 10px;
+  border-radius: 999px;
+  background: #f2e3ea;
+}
+
+.mini-bar-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #b45d7f 0%, #e4a574 100%);
+}
+
 @media (max-width: 980px) {
   .hero-card,
   .stats-grid,

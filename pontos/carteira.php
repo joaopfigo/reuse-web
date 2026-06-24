@@ -2,9 +2,12 @@
 require_once __DIR__ . '/../app/helpers/auth.php';
 require_once __DIR__ . '/../app/helpers/layout.php';
 require_once __DIR__ . '/../app/repositories/PontosRepo.php';
+require_once __DIR__ . '/../app/repositories/ReservaRepo.php';
 
 $usuario = exigir_login();
 $extrato = PontosRepo::extrato((int) $usuario['id']);
+$pontosReservados = ReservaRepo::pontosReservados((int) $usuario['id']);
+$saldoDisponivel = ReservaRepo::saldoDisponivel($usuario);
 $creditos = 0;
 $debitos = 0;
 
@@ -23,7 +26,7 @@ foreach ($extrato as $movimento) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Carteira de pontos</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/experience.css?v=20260615">
+    <link rel="stylesheet" href="../assets/css/experience.css?v=20260624">
 </head>
 <body>
     <?php render_topbar($usuario); ?>
@@ -41,7 +44,12 @@ foreach ($extrato as $movimento) {
             <article class="wallet-card featured">
                 <span class="wallet-label">Saldo atual</span>
                 <strong class="wallet-value"><?= (int) $usuario['saldo_pontos'] ?></strong>
-                <p class="wallet-note">pontos disponíveis agora</p>
+                <p class="wallet-note">saldo total da conta</p>
+            </article>
+            <article class="wallet-card">
+                <span class="wallet-label">Disponível para reservar</span>
+                <strong class="wallet-value"><?= $saldoDisponivel ?></strong>
+                <p class="wallet-note"><?= $pontosReservados ?> ponto(s) comprometidos em reservas ativas</p>
             </article>
             <article class="wallet-card">
                 <span class="wallet-label">Pontos recebidos</span>

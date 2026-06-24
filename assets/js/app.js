@@ -78,10 +78,12 @@
       return;
     }
 
-    const image = document.createElement('img');
-    image.alt = 'Pré-visualização da imagem';
-    image.src = URL.createObjectURL(file);
-    preview.appendChild(image);
+    Array.from(fileInput.files).slice(0, 5).forEach((selectedFile, index) => {
+      const image = document.createElement('img');
+      image.alt = `Pré-visualização da imagem ${index + 1}`;
+      image.src = URL.createObjectURL(selectedFile);
+      preview.appendChild(image);
+    });
     preview.hidden = false;
   });
 })();

@@ -14,6 +14,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $notificacoes = NotificacaoRepo::listar((int) $usuario['id']);
+
+function acao_notificacao(array $notificacao): ?array
+{
+    $tipo = (string) ($notificacao['tipo'] ?? '');
+    $reservaId = (int) ($notificacao['reserva_id'] ?? 0);
+    $mensagem = (string) ($notificacao['mensagem'] ?? '');
+
+    if ($reservaId > 0 && str_starts_with($mensagem, 'Nova mensagem')) {
+        return ['label' => 'Abrir conversa', 'url' => app_url('reservas/chat.php?id=' . $reservaId)];
+    }
+
+    return match ($tipo) {
+        'reserva' => ['label' => 'Ver doações', 'url' => app_url('reservas/gerenciar.php')],
+        'aceite' => ['label' => 'Ver reserva', 'url' => app_url('reservas/minhas.php')],
+        'cancelamento' => ['label' => 'Ver meus itens', 'url' => app_url('itens/meus.php')],
+        'confirmacao', 'pontos' => ['label' => 'Ver pontos', 'url' => app_url('pontos/carteira.php')],
+        'avaliacao', 'noshow' => ['label' => 'Ver perfil', 'url' => app_url('perfil.php')],
+        default => null,
+    };
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -22,7 +42,7 @@ $notificacoes = NotificacaoRepo::listar((int) $usuario['id']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Notificações</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/experience.css?v=20260615">
+    <link rel="stylesheet" href="../assets/css/experience.css?v=20260624">
 </head>
 <body>
     <?php render_topbar($usuario); ?>
@@ -49,11 +69,12 @@ $notificacoes = NotificacaoRepo::listar((int) $usuario['id']);
 
         <section class="notification-list">
             <?php foreach ($notificacoes as $n): ?>
+                <?php $acao = acao_notificacao($n); ?>
                 <article class="notification-card <?= $n['lida'] ? '' : 'is-unread' ?>">
                     <p><?= e($n['mensagem']) ?></p>
                     <time><?= e(formatar_data_hora($n['criada_em'])) ?></time>
-                    <?php if (!empty($n['reserva_id']) && str_starts_with((string) $n['mensagem'], 'Nova mensagem')): ?>
-                        <a class="btn secondary" href="<?= e(app_url('reservas/chat.php?id=' . (int) $n['reserva_id'])) ?>">Abrir conversa</a>
+                    <?php if ($acao): ?>
+                        <a class="btn secondary" href="<?= e($acao['url']) ?>"><?= e($acao['label']) ?></a>
                     <?php endif; ?>
                 </article>
             <?php endforeach; ?>

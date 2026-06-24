@@ -37,6 +37,6 @@ function render_topbar(array $usuario): void
             </form>
         </nav>
     </header>
-    <script src="<?= e(app_url('assets/js/app.js?v=20260622-2')) ?>" defer></script>
+    <script src="<?= e(app_url('assets/js/app.js?v=20260624')) ?>" defer></script>
     <?php
 }

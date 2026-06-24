@@ -26,7 +26,7 @@ class ItemRepo
         )->fetchAll();
     }
 
-    public static function criar(array $dados, ?string $fotoPath): int
+    public static function criar(array $dados, array $fotoPaths = []): int
     {
         if ((int) $dados['categoria_id'] === self::CATEGORIA_COSMETICOS_ID) {
             $dados['condicao'] = 'novo';
@@ -52,12 +52,15 @@ class ItemRepo
 
             $itemId = (int) $pdo->lastInsertId();
 
-            if ($fotoPath) {
-                $foto = $pdo->prepare('INSERT INTO item_fotos (item_id, caminho, ordem) VALUES (:item_id, :caminho, 1)');
-                $foto->execute([
-                    ':item_id' => $itemId,
-                    ':caminho' => $fotoPath,
-                ]);
+            if ($fotoPaths) {
+                $foto = $pdo->prepare('INSERT INTO item_fotos (item_id, caminho, ordem) VALUES (:item_id, :caminho, :ordem)');
+                foreach (array_values($fotoPaths) as $ordem => $fotoPath) {
+                    $foto->execute([
+                        ':item_id' => $itemId,
+                        ':caminho' => $fotoPath,
+                        ':ordem' => $ordem + 1,
+                    ]);
+                }
             }
 
             $pdo->commit();
@@ -69,6 +72,44 @@ class ItemRepo
     }
 
     public static function listar(array $filtros = []): array
+    {
+        [$where, $params] = self::montarFiltros($filtros);
+        $limite = max(1, min(48, (int) ($filtros['limite'] ?? 12)));
+        $offset = max(0, (int) ($filtros['offset'] ?? 0));
+        $ordenacao = self::ordenacaoSql((string) ($filtros['ordem'] ?? 'recentes'));
+
+        $sql = 'SELECT i.*, c.nome AS categoria, u.nome AS doadora, f.caminho AS foto
+                FROM itens i
+                JOIN categorias c ON c.id = i.categoria_id
+                JOIN usuarios u ON u.id = i.doadora_id
+                LEFT JOIN item_fotos f ON f.item_id = i.id AND f.ordem = 1
+                WHERE ' . implode(' AND ', $where) . '
+                ORDER BY ' . $ordenacao . '
+                LIMIT ' . $limite . ' OFFSET ' . $offset;
+
+        $stmt = db()->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll();
+    }
+
+    public static function contar(array $filtros = []): int
+    {
+        [$where, $params] = self::montarFiltros($filtros);
+
+        $sql = 'SELECT COUNT(*)
+                FROM itens i
+                JOIN categorias c ON c.id = i.categoria_id
+                JOIN usuarios u ON u.id = i.doadora_id
+                WHERE ' . implode(' AND ', $where);
+
+        $stmt = db()->prepare($sql);
+        $stmt->execute($params);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    private static function montarFiltros(array $filtros): array
     {
         $where = ['i.status = "disponivel"'];
         $params = [];
@@ -115,18 +156,23 @@ class ItemRepo
             $params[':condicao'] = $filtros['condicao'];
         }
 
-        $sql = 'SELECT i.*, c.nome AS categoria, u.nome AS doadora, f.caminho AS foto
-                FROM itens i
-                JOIN categorias c ON c.id = i.categoria_id
-                JOIN usuarios u ON u.id = i.doadora_id
-                LEFT JOIN item_fotos f ON f.item_id = i.id AND f.ordem = 1
-                WHERE ' . implode(' AND ', $where) . '
-                ORDER BY i.criado_em DESC';
+        if (!empty($filtros['local'])) {
+            $where[] = '(i.bairro LIKE :local_bairro OR i.cidade LIKE :local_cidade)';
+            $params[':local_bairro'] = '%' . trim((string) $filtros['local']) . '%';
+            $params[':local_cidade'] = '%' . trim((string) $filtros['local']) . '%';
+        }
 
-        $stmt = db()->prepare($sql);
-        $stmt->execute($params);
+        return [$where, $params];
+    }
 
-        return $stmt->fetchAll();
+    private static function ordenacaoSql(string $ordem): string
+    {
+        return match ($ordem) {
+            'pontos_menor' => 'i.pontos ASC, i.criado_em DESC',
+            'pontos_maior' => 'i.pontos DESC, i.criado_em DESC',
+            'titulo' => 'i.titulo ASC, i.criado_em DESC',
+            default => 'i.criado_em DESC',
+        };
     }
 
     public static function buscarPorId(int $id): ?array
@@ -143,6 +189,19 @@ class ItemRepo
         $item = $stmt->fetch();
 
         return $item ?: null;
+    }
+
+    public static function fotosDoItem(int $id): array
+    {
+        $stmt = db()->prepare(
+            'SELECT caminho, ordem
+             FROM item_fotos
+             WHERE item_id = :id
+             ORDER BY ordem ASC, id ASC'
+        );
+        $stmt->execute([':id' => $id]);
+
+        return $stmt->fetchAll();
     }
 
     public static function atualizar(int $id, int $doadoraId, array $dados): bool

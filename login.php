@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $usuario = AuthService::autenticar($email, $senha);
 
         if ($usuario) {
+            session_regenerate_id(true);
             $_SESSION['usuario_id'] = (int) $usuario['id'];
             header('Location: ' . app_url('itens/listar.php'));
             exit;
@@ -33,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReUse | Login</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/experience.css?v=20260615">
+    <link rel="stylesheet" href="assets/css/experience.css?v=20260624">
 </head>
 <body class="auth-page">
     <main class="auth-shell">
