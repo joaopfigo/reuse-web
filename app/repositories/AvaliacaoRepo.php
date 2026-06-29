@@ -38,4 +38,43 @@ class AvaliacaoRepo
         $media = $stmt->fetchColumn();
         return ($media !== false && $media !== null) ? round((float) $media, 1) : null;
     }
+
+    public static function recebidas(int $usuarioId, int $limite = 8): array
+    {
+        $limite = max(1, min(20, $limite));
+
+        $stmt = db()->prepare(
+            'SELECT a.nota, a.comentario, a.criada_em, u.nome AS avaliadora, i.titulo AS item_titulo
+             FROM avaliacoes a
+             JOIN usuarios u ON u.id = a.avaliadora_id
+             JOIN reservas r ON r.id = a.reserva_id
+             JOIN itens i ON i.id = r.item_id
+             WHERE a.avaliada_id = :usuario_id
+             ORDER BY a.criada_em DESC
+             LIMIT ' . $limite
+        );
+        $stmt->execute([':usuario_id' => $usuarioId]);
+
+        return $stmt->fetchAll();
+    }
+
+    public static function positivas(int $usuarioId, int $limite = 6): array
+    {
+        $limite = max(1, min(20, $limite));
+
+        $stmt = db()->prepare(
+            'SELECT a.nota, a.comentario, a.criada_em, u.nome AS avaliadora, i.titulo AS item_titulo
+             FROM avaliacoes a
+             JOIN usuarios u ON u.id = a.avaliadora_id
+             JOIN reservas r ON r.id = a.reserva_id
+             JOIN itens i ON i.id = r.item_id
+             WHERE a.avaliada_id = :usuario_id
+               AND a.nota >= 4
+             ORDER BY a.criada_em DESC
+             LIMIT ' . $limite
+        );
+        $stmt->execute([':usuario_id' => $usuarioId]);
+
+        return $stmt->fetchAll();
+    }
 }

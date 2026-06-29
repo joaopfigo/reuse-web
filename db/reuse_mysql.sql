@@ -8,11 +8,13 @@ CREATE TABLE IF NOT EXISTS usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(120) NOT NULL,
     email VARCHAR(160) NOT NULL UNIQUE,
+    email_verificado_em DATETIME NULL,
     senha_hash VARCHAR(255) NOT NULL,
     telefone VARCHAR(30),
+    telefone_normalizado VARCHAR(20) UNIQUE,
     bairro VARCHAR(100) NOT NULL,
     cidade VARCHAR(100) NOT NULL DEFAULT 'Belo Horizonte',
-    saldo_pontos INT NOT NULL DEFAULT 20,
+    saldo_pontos INT NOT NULL DEFAULT 0,
     ativo TINYINT(1) NOT NULL DEFAULT 1,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -47,6 +49,7 @@ CREATE TABLE IF NOT EXISTS item_fotos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     item_id INT NOT NULL,
     caminho VARCHAR(255) NOT NULL,
+    hash_perceptual CHAR(16) NULL,
     ordem INT NOT NULL DEFAULT 1,
     criada_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_item_fotos_item FOREIGN KEY (item_id) REFERENCES itens(id) ON DELETE CASCADE,
@@ -105,6 +108,18 @@ CREATE TABLE IF NOT EXISTS tokens_senha (
     CONSTRAINT fk_token_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS email_confirmacoes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    token_hash CHAR(64) NOT NULL UNIQUE,
+    expira_em DATETIME NOT NULL,
+    usado TINYINT(1) NOT NULL DEFAULT 0,
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_email_confirmacoes_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+    INDEX idx_email_confirmacoes_usuario (usuario_id),
+    INDEX idx_email_confirmacoes_expira (expira_em)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS avaliacoes (
     id            INT AUTO_INCREMENT PRIMARY KEY,
     reserva_id    INT NOT NULL,
@@ -139,6 +154,7 @@ CREATE TABLE IF NOT EXISTS denuncias (
     denunciada_id  INT NULL,
     motivo         ENUM('item_falso','comportamento','no_show','outro') NOT NULL,
     descricao      TEXT NOT NULL,
+    evidencia_caminho VARCHAR(255) NULL,
     criada_em      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_den_denunciante FOREIGN KEY (denunciante_id) REFERENCES usuarios(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

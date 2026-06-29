@@ -96,7 +96,10 @@ $mensagens = $stmt->fetchAll();
             <div class="surface-panel chat-panel">
                 <div class="section-header">
                     <h2>Mensagens</h2>
-                    <p>Doador(a): <?= e($reserva['doadora_nome']) ?> · Receptor(a): <?= e($reserva['receptora_nome']) ?></p>
+                    <p>
+                        Doador(a): <a href="<?= e(app_url('usuarios/perfil.php?id=' . (int) $reserva['doadora_id'])) ?>"><?= e($reserva['doadora_nome']) ?></a>
+                        · Receptor(a): <a href="<?= e(app_url('usuarios/perfil.php?id=' . (int) $reserva['receptora_id'])) ?>"><?= e($reserva['receptora_nome']) ?></a>
+                    </p>
                 </div>
 
                 <div class="chat-toolbar muted">Mantenha a conversa focada em local, horário e confirmação da retirada.</div>

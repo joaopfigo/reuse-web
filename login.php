@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>ReUse | Login</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/experience.css?v=20260624">
+    <?= pwa_head_tags() ?>
 </head>
 <body class="auth-page">
     <main class="auth-shell">

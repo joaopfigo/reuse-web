@@ -38,5 +38,6 @@ function render_topbar(array $usuario): void
         </nav>
     </header>
     <script src="<?= e(app_url('assets/js/app.js?v=20260624')) ?>" defer></script>
+    <script src="<?= e(app_url('assets/js/pwa.js?v=20260624')) ?>" defer></script>
     <?php
 }

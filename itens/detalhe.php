@@ -13,6 +13,7 @@ $saldoDisponivel = ReservaRepo::saldoDisponivel($usuario);
 $podeReservar = $item
     && (int) $item['doadora_id'] !== (int) $usuario['id']
     && $item['status'] === 'disponivel'
+    && conta_verificada($usuario)
     && $saldoDisponivel >= (int) $item['pontos'];
 $avaliacaoMedia = $doadoraResumo['avaliacao_media'] ?? null;
 $itensDoados = (int) ($doadoraResumo['itens_doados'] ?? 0);
@@ -94,7 +95,9 @@ $seloConfianca = $itensDoados >= 3 && $noShows === 0 ? 'Conta confiável' : 'Per
                             <div class="soft-note">Ao reservar, você passa a acompanhar local, horário e confirmação em "Minhas reservas".</div>
                             <?php if (!$podeReservar): ?>
                                 <div class="alert warning">
-                                    <?php if ($item['status'] !== 'disponivel'): ?>
+                                    <?php if (!conta_verificada($usuario)): ?>
+                                        Confirme seu e-mail para reservar itens no ReUse.
+                                    <?php elseif ($item['status'] !== 'disponivel'): ?>
                                         Este item não está disponível para reserva no momento.
                                     <?php elseif ($saldoDisponivel < (int) $item['pontos']): ?>
                                         Você tem <?= $saldoDisponivel ?> ponto(s) livres, mas este item custa <?= (int) $item['pontos'] ?> ponto(s).

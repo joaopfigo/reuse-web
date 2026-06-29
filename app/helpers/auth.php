@@ -35,6 +35,7 @@ function app_url(string $path = ''): string
         '/denuncias',
         '/avaliacoes',
         '/impacto',
+        '/usuarios',
     ];
 
     foreach ($subpastasDaAplicacao as $subpasta) {
@@ -76,6 +77,16 @@ function csrf_input(): string
     return '<input type="hidden" name="csrf_token" value="' . e(csrf_token()) . '">';
 }
 
+function pwa_head_tags(): string
+{
+    return '<link rel="manifest" href="' . e(app_url('manifest.webmanifest')) . '">' . PHP_EOL
+        . '    <meta name="theme-color" content="#b45d7f">' . PHP_EOL
+        . '    <meta name="apple-mobile-web-app-capable" content="yes">' . PHP_EOL
+        . '    <meta name="apple-mobile-web-app-title" content="ReUse">' . PHP_EOL
+        . '    <link rel="apple-touch-icon" href="' . e(app_url('assets/icons/icon.svg')) . '">' . PHP_EOL
+        . '    <script src="' . e(app_url('assets/js/pwa.js?v=20260624')) . '" defer></script>';
+}
+
 function validar_csrf_post(): void
 {
     if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
@@ -114,6 +125,39 @@ function exigir_login(): array
     }
 
     return $usuario;
+}
+
+function conta_verificada(array $usuario): bool
+{
+    return !empty($usuario['email_verificado_em']);
+}
+
+function nivel_conta(array $usuario): string
+{
+    if (empty($usuario['email_verificado_em'])) {
+        return 'Conta basica';
+    }
+
+    $noShow = (int) ($usuario['no_show_count'] ?? 0);
+    $avaliacao = isset($usuario['avaliacao_media']) ? (float) $usuario['avaliacao_media'] : null;
+    $entregas = (int) ($usuario['itens_doados'] ?? 0);
+
+    if ($entregas >= 3 && $noShow <= 1 && ($avaliacao === null || $avaliacao >= 4.0)) {
+        return 'Conta confiavel';
+    }
+
+    return 'Conta verificada';
+}
+
+function exigir_conta_verificada(array $usuario, string $destino = 'perfil.php'): void
+{
+    if (conta_verificada($usuario)) {
+        return;
+    }
+
+    flash_set('error', 'Confirme seu e-mail para publicar itens e fazer reservas no ReUse.');
+    header('Location: ' . app_url($destino));
+    exit;
 }
 
 function redirecionar_se_logado(): void

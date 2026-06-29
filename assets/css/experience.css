@@ -231,6 +231,42 @@ select.is-locked:disabled {
   justify-self: start;
 }
 
+.feedback-list {
+  display: grid;
+  gap: 14px;
+}
+
+.feedback-card {
+  display: grid;
+  gap: 10px;
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: #fff8fb;
+  border: 1px solid #f0e2e8;
+}
+
+.feedback-card > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #8a707d;
+  font-size: 0.86rem;
+}
+
+.feedback-card > div strong {
+  color: #a25073;
+}
+
+.feedback-card p {
+  margin: 0;
+  color: #3a2632;
+  line-height: 1.7;
+}
+
+.feedback-card small {
+  color: #8a707d;
+}
+
 .wallet-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -492,6 +528,51 @@ select.is-locked:disabled {
   background: linear-gradient(90deg, #b45d7f 0%, #e4a574 100%);
 }
 
+.install-app-card {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 500;
+  width: min(420px, calc(100vw - 32px));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(234, 214, 223, 0.94);
+  box-shadow: 0 22px 50px rgba(94, 58, 76, 0.18);
+  backdrop-filter: blur(16px);
+}
+
+.install-app-card div {
+  display: grid;
+  gap: 4px;
+}
+
+.install-app-card strong {
+  color: #3a2632;
+}
+
+.install-app-card span {
+  color: #745d69;
+  line-height: 1.5;
+  font-size: 0.88rem;
+}
+
+.install-dismiss {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 999px;
+  background: #fff0f5;
+  color: #944764;
+  font-size: 1.2rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 .form-main .surface-panel,
 .form-side .surface-panel {
   gap: 20px;
@@ -648,5 +729,19 @@ select.is-locked:disabled {
 
   .mini-bar-row {
     grid-template-columns: 1fr;
+  }
+
+  .install-app-card {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    width: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .install-dismiss {
+    position: absolute;
+    top: 10px;
+    right: 10px;
   }
 }

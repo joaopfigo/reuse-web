@@ -8,6 +8,8 @@ $usuario = exigir_login();
 $erro = '';
 $sucesso = '';
 $mediaAvaliacao = AvaliacaoRepo::mediaDaUsuaria((int) $usuario['id']);
+$resumoConfianca = UsuarioRepo::resumoPublico((int) $usuario['id']) ?? [];
+$dadosNivel = array_merge($usuario, $resumoConfianca);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     validar_csrf_post();
@@ -19,10 +21,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$nome || !$bairro) {
         $erro = 'Nome e bairro são obrigatórios.';
     } else {
-        UsuarioRepo::atualizarPerfil((int) $usuario['id'], $nome, $telefone, $bairro, $cidade);
-        $usuario = exigir_login();
-        $mediaAvaliacao = AvaliacaoRepo::mediaDaUsuaria((int) $usuario['id']);
-        $sucesso = 'Perfil atualizado.';
+        try {
+            UsuarioRepo::atualizarPerfil((int) $usuario['id'], $nome, $telefone, $bairro, $cidade);
+            $usuario = exigir_login();
+            $mediaAvaliacao = AvaliacaoRepo::mediaDaUsuaria((int) $usuario['id']);
+            $resumoConfianca = UsuarioRepo::resumoPublico((int) $usuario['id']) ?? [];
+            $dadosNivel = array_merge($usuario, $resumoConfianca);
+            $sucesso = 'Perfil atualizado.';
+        } catch (PDOException $e) {
+            $erro = ((string) $e->getCode() === '23000')
+                ? 'Este telefone ja esta sendo usado em outra conta.'
+                : 'Nao foi possivel atualizar o perfil agora.';
+        }
     }
 }
 ?>
@@ -53,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="hero-pill">
                     <span>Conta ativa</span>
-                    <strong>Pronta para doar e reservar</strong>
+                    <strong><?= conta_verificada($usuario) ? 'Pronta para doar e reservar' : 'Aguardando confirmacao de e-mail' ?></strong>
                 </div>
             </div>
         </section>
@@ -62,6 +72,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="alert error">
                 Sua conta está temporariamente bloqueada por não comparecimentos repetidos. A restrição será liberada em
                 <strong><?= e(formatar_data_hora($usuario['bloqueada_ate'])) ?></strong>.
+            </div>
+        <?php endif; ?>
+
+        <?php if (!conta_verificada($usuario)): ?>
+            <div class="alert error">
+                Sua conta ainda esta no nivel basico. Confirme seu e-mail para publicar itens, fazer reservas e receber bonus nos 3 primeiros anuncios.
+                <form method="post" action="<?= e(app_url('reenviar-confirmacao.php')) ?>" class="inline-form">
+                    <?= csrf_input() ?>
+                    <button class="btn secondary" type="submit">Reenviar confirmacao</button>
+                </form>
+            </div>
+        <?php else: ?>
+            <div class="alert success">
+                Nivel da conta: <?= e(nivel_conta($dadosNivel)) ?>. Sua conta esta liberada para publicar itens e fazer reservas.
             </div>
         <?php endif; ?>
 

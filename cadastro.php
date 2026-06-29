@@ -11,26 +11,33 @@ $nome = trim((string) ($_POST['nome'] ?? ''));
 $email = trim((string) ($_POST['email'] ?? ''));
 $telefone = trim((string) ($_POST['telefone'] ?? ''));
 $bairro = trim((string) ($_POST['bairro'] ?? ''));
+$cidade = trim((string) ($_POST['cidade'] ?? 'Belo Horizonte'));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     validar_csrf_post();
     $senha = $_POST['senha'] ?? '';
     $telefoneRepo = $telefone !== '' ? $telefone : null;
+    $telefoneNormalizado = normalizar_telefone($telefoneRepo);
 
-    if (!$nome || !validar_email($email) || strlen($senha) < 8 || !$bairro) {
-        $erro = 'Preencha nome, e-mail válido, senha com 8 caracteres e bairro.';
+    if (!$nome || !validar_email($email) || strlen($senha) < 8 || !$bairro || !$cidade) {
+        $erro = 'Preencha nome, e-mail valido, senha com 8 caracteres, bairro e cidade.';
+    } elseif ($telefoneNormalizado === null || strlen($telefoneNormalizado) < 10) {
+        $erro = 'Informe um telefone valido com DDD.';
     } else {
         try {
-            AuthService::cadastrar($nome, $email, $senha, $telefoneRepo, $bairro);
-            $sucesso = 'Cadastro criado. Agora você pode fazer login.';
+            $resultado = AuthService::cadastrar($nome, $email, $senha, $telefoneRepo, $telefoneNormalizado, $bairro, $cidade);
+            $sucesso = $resultado['email_enviado']
+                ? 'Cadastro criado. Enviamos um link para confirmar seu e-mail antes de publicar itens ou fazer reservas.'
+                : 'Cadastro criado, mas o e-mail de confirmacao nao foi enviado. Configure o SMTP e use a opcao de reenviar confirmacao no perfil.';
             $nome = '';
             $email = '';
             $telefone = '';
             $bairro = '';
+            $cidade = 'Belo Horizonte';
         } catch (PDOException $e) {
             $erro = ((string) $e->getCode() === '23000')
-                ? 'Este e-mail já está cadastrado.'
-                : 'Não foi possível concluir o cadastro agora.';
+                ? 'Este e-mail ou telefone ja esta cadastrado.'
+                : 'Nao foi possivel concluir o cadastro agora.';
         }
     }
 }
@@ -43,22 +50,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>ReUse | Cadastro</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/experience.css?v=20260624">
+    <?= pwa_head_tags() ?>
 </head>
 <body class="auth-page">
     <main class="auth-shell">
         <section class="auth-showcase">
             <span class="hero-tag">Entrada na comunidade</span>
             <h1>Crie sua conta e participe de uma rede de reuso mais organizada.</h1>
-            <p>Cadastre-se para publicar itens, reservar doações, acompanhar notificações e movimentar sua carteira de pontos com segurança.</p>
+            <p>Cadastre-se para publicar itens, reservar doacoes, acompanhar notificacoes e movimentar sua carteira de pontos com seguranca.</p>
 
             <div class="auth-feature-list">
                 <div class="auth-feature">
                     <strong>Cadastro simples</strong>
-                    <span>Informações objetivas para você começar rápido e manter apenas dados úteis para a retirada.</span>
+                    <span>E-mail e telefone unicos ajudam a reduzir contas duplicadas e deixam a comunidade mais confiavel.</span>
                 </div>
                 <div class="auth-feature">
-                    <strong>Comunidade confiável</strong>
-                    <span>Regras de confirmação, avaliações e histórico ajudam a tornar as trocas mais seguras.</span>
+                    <strong>Conta verificada</strong>
+                    <span>Depois de confirmar o e-mail, voce libera publicacoes, reservas e os bonus dos primeiros itens.</span>
                 </div>
             </div>
         </section>
@@ -66,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="post" class="auth-panel">
             <div class="section-header">
                 <h2>Criar cadastro</h2>
-                <p>Abra sua conta para começar a doar, reservar e acompanhar toda a jornada no ReUse.</p>
+                <p>Abra sua conta para comecar a doar, reservar e acompanhar toda a jornada no ReUse.</p>
             </div>
 
             <?= csrf_input() ?>
@@ -95,20 +103,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </label>
 
                 <label>
-                    Bairro
-                    <input type="text" name="bairro" value="<?= e($bairro) ?>" autocomplete="address-level2" required>
+                    Telefone
+                    <input type="tel" name="telefone" value="<?= e($telefone) ?>" data-phone-mask autocomplete="tel" required>
                 </label>
             </div>
 
-            <label>
-                Telefone
-                <input type="tel" name="telefone" value="<?= e($telefone) ?>" data-phone-mask autocomplete="tel">
-            </label>
+            <div class="grid-2">
+                <label>
+                    Bairro
+                    <input type="text" name="bairro" value="<?= e($bairro) ?>" autocomplete="address-level2" required>
+                </label>
+
+                <label>
+                    Cidade
+                    <input type="text" name="cidade" value="<?= e($cidade) ?>" autocomplete="address-level1" required>
+                </label>
+            </div>
 
             <button type="submit" class="btn primary">Cadastrar</button>
 
             <div class="auth-links">
-                <a href="login.php">Já tenho conta</a>
+                <a href="login.php">Ja tenho conta</a>
             </div>
         </form>
     </main>

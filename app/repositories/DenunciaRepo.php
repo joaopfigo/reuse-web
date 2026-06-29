@@ -55,4 +55,24 @@ class DenunciaRepo
 
         return $cache[$coluna];
     }
+
+    public static function estatisticasPublicas(int $usuarioId): array
+    {
+        $stmtTotal = db()->prepare('SELECT COUNT(*) FROM denuncias WHERE denunciada_id = :usuario_id');
+        $stmtTotal->execute([':usuario_id' => $usuarioId]);
+
+        $stmtMotivos = db()->prepare(
+            'SELECT motivo, COUNT(*) AS total
+             FROM denuncias
+             WHERE denunciada_id = :usuario_id
+             GROUP BY motivo
+             ORDER BY total DESC, motivo ASC'
+        );
+        $stmtMotivos->execute([':usuario_id' => $usuarioId]);
+
+        return [
+            'total' => (int) $stmtTotal->fetchColumn(),
+            'motivos' => $stmtMotivos->fetchAll(),
+        ];
+    }
 }

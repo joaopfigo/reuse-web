@@ -49,6 +49,7 @@ if (!$erros && $_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>ReUse | Redefinir senha</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/experience.css?v=20260624">
+    <?= pwa_head_tags() ?>
 </head>
 <body class="auth-page">
     <main class="auth-shell">

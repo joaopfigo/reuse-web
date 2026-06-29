@@ -960,6 +960,46 @@ textarea {
   font-size: var(--fz-sm);
 }
 
+.install-app-card {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 500;
+  width: min(420px, calc(100vw - 32px));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: var(--sp-3);
+  align-items: center;
+  padding: var(--sp-4);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(234, 214, 223, 0.94);
+  box-shadow: var(--shadow-lg);
+}
+
+.install-app-card div {
+  display: grid;
+  gap: 4px;
+}
+
+.install-app-card span {
+  color: var(--clr-muted);
+  line-height: 1.5;
+  font-size: var(--fz-sm);
+}
+
+.install-dismiss {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: var(--r-pill);
+  background: var(--clr-primary-light);
+  color: var(--clr-primary-hover);
+  font-size: 1.2rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 .page-header {
   display: flex;
   justify-content: space-between;

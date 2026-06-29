@@ -45,7 +45,10 @@ $reservas = ReservaRepo::minhasDaReceptora((int) $usuario['id']);
                     <div class="list-card-head">
                         <div>
                             <h2><?= e($r['titulo']) ?></h2>
-                            <p class="list-card-meta">Doador(a): <?= e($r['doadora']) ?> · <?= (int) $r['pontos'] ?> pontos</p>
+                            <p class="list-card-meta">
+                                Doador(a): <a href="<?= e(app_url('usuarios/perfil.php?id=' . (int) $r['doadora_id'])) ?>"><?= e($r['doadora']) ?></a>
+                                · <?= (int) $r['pontos'] ?> pontos
+                            </p>
                         </div>
                         <span class="<?= e(status_badge_class((string) $r['status'])) ?>"><?= e(status_label((string) $r['status'])) ?></span>
                     </div>

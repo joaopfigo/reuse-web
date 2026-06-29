@@ -9,6 +9,8 @@ $usuario = exigir_login();
 exigir_post();
 validar_csrf_post();
 
+exigir_conta_verificada($usuario, 'perfil.php');
+
 $itemId = (int) ($_POST['item_id'] ?? 0);
 
 if ($itemId <= 0) {

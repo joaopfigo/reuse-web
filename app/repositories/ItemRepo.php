@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../helpers/validar.php';
 
 class ItemRepo
 {
@@ -36,8 +37,8 @@ class ItemRepo
         $pdo->beginTransaction();
 
         try {
-            $sql = 'INSERT INTO itens (doadora_id, categoria_id, titulo, descricao, condicao, pontos, bairro)
-                    VALUES (:doadora_id, :categoria_id, :titulo, :descricao, :condicao, :pontos, :bairro)';
+            $sql = 'INSERT INTO itens (doadora_id, categoria_id, titulo, descricao, condicao, pontos, bairro, cidade)
+                    VALUES (:doadora_id, :categoria_id, :titulo, :descricao, :condicao, :pontos, :bairro, :cidade)';
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
@@ -48,20 +49,35 @@ class ItemRepo
                 ':condicao' => $dados['condicao'],
                 ':pontos' => $dados['pontos'],
                 ':bairro' => $dados['bairro'],
+                ':cidade' => $dados['cidade'] ?? 'Belo Horizonte',
             ]);
 
             $itemId = (int) $pdo->lastInsertId();
 
             if ($fotoPaths) {
-                $foto = $pdo->prepare('INSERT INTO item_fotos (item_id, caminho, ordem) VALUES (:item_id, :caminho, :ordem)');
+                $temHash = self::itemFotosTemHashPerceptual($pdo);
+                $foto = $pdo->prepare(
+                    $temHash
+                        ? 'INSERT INTO item_fotos (item_id, caminho, hash_perceptual, ordem) VALUES (:item_id, :caminho, :hash_perceptual, :ordem)'
+                        : 'INSERT INTO item_fotos (item_id, caminho, ordem) VALUES (:item_id, :caminho, :ordem)'
+                );
                 foreach (array_values($fotoPaths) as $ordem => $fotoPath) {
-                    $foto->execute([
+                    $caminho = is_array($fotoPath) ? (string) $fotoPath['caminho'] : (string) $fotoPath;
+                    $params = [
                         ':item_id' => $itemId,
-                        ':caminho' => $fotoPath,
+                        ':caminho' => $caminho,
                         ':ordem' => $ordem + 1,
-                    ]);
+                    ];
+
+                    if ($temHash) {
+                        $params[':hash_perceptual'] = is_array($fotoPath) ? ($fotoPath['hash_perceptual'] ?? null) : null;
+                    }
+
+                    $foto->execute($params);
                 }
             }
+
+            self::creditarBonusPublicacao((int) $dados['doadora_id'], $pdo);
 
             $pdo->commit();
             return $itemId;
@@ -217,6 +233,7 @@ class ItemRepo
                     condicao = :condicao,
                     pontos = :pontos,
                     bairro = :bairro,
+                    cidade = :cidade,
                     atualizado_em = NOW()
                 WHERE id = :id AND doadora_id = :doadora_id';
 
@@ -230,6 +247,7 @@ class ItemRepo
             ':condicao' => $dados['condicao'],
             ':pontos' => $dados['pontos'],
             ':bairro' => $dados['bairro'],
+            ':cidade' => $dados['cidade'] ?? 'Belo Horizonte',
         ]);
 
         return $stmt->rowCount() > 0;
@@ -283,5 +301,166 @@ class ItemRepo
         $stmt->execute([':id' => $id, ':doadora_id' => $doadoraId]);
 
         return $stmt->rowCount() > 0;
+    }
+
+    public static function verificarDuplicidadeTexto(array $dados): ?array
+    {
+        $stmt = db()->prepare(
+            'SELECT id, titulo, descricao, categoria_id, condicao, bairro, cidade
+             FROM itens
+             WHERE doadora_id = :doadora_id
+               AND status IN ("disponivel", "reservado", "pausado")
+               AND categoria_id = :categoria_id
+               AND condicao = :condicao'
+        );
+        $stmt->execute([
+            ':doadora_id' => $dados['doadora_id'],
+            ':categoria_id' => $dados['categoria_id'],
+            ':condicao' => $dados['condicao'],
+        ]);
+
+        $tituloNovo = normalizar_texto_item((string) $dados['titulo']);
+        $descricaoNova = normalizar_texto_item((string) ($dados['descricao'] ?? ''));
+        $bairroNovo = normalizar_texto_item((string) $dados['bairro']);
+        $cidadeNova = normalizar_texto_item((string) ($dados['cidade'] ?? ''));
+
+        foreach ($stmt->fetchAll() as $item) {
+            $tituloExistente = normalizar_texto_item((string) $item['titulo']);
+            $descricaoExistente = normalizar_texto_item((string) $item['descricao']);
+            $mesmoLocal = $bairroNovo === normalizar_texto_item((string) $item['bairro'])
+                && $cidadeNova === normalizar_texto_item((string) $item['cidade']);
+
+            if ($tituloNovo !== '' && $tituloNovo === $tituloExistente) {
+                return [
+                    'tipo' => 'bloqueio',
+                    'mensagem' => 'Encontramos um item parecido ja cadastrado por voce. Edite o anuncio existente ou pause o item anterior antes de criar outro anuncio igual.',
+                ];
+            }
+
+            $similaridadeTitulo = similaridade_texto_item($tituloNovo, $tituloExistente);
+            $similaridadeDescricao = similaridade_texto_item($descricaoNova, $descricaoExistente);
+
+            if ($mesmoLocal && ($similaridadeTitulo >= 0.88 || ($similaridadeTitulo >= 0.76 && $similaridadeDescricao >= 0.72))) {
+                return [
+                    'tipo' => 'alerta',
+                    'mensagem' => 'Encontramos um item parecido ja cadastrado por voce. Edite o anuncio existente ou pause o item anterior antes de criar outro anuncio igual.',
+                ];
+            }
+        }
+
+        return null;
+    }
+
+    public static function verificarDuplicidadeImagem(int $doadoraId, int $categoriaId, array $fotos): ?array
+    {
+        $hashes = array_values(array_filter(array_map(
+            static fn ($foto) => is_array($foto) ? ($foto['hash_perceptual'] ?? null) : null,
+            $fotos
+        )));
+
+        if (!$hashes || !self::itemFotosTemHashPerceptual(db())) {
+            return null;
+        }
+
+        $stmt = db()->prepare(
+            'SELECT f.hash_perceptual
+             FROM item_fotos f
+             JOIN itens i ON i.id = f.item_id
+             WHERE i.doadora_id = :doadora_id
+               AND i.categoria_id = :categoria_id
+               AND i.status IN ("disponivel", "reservado", "pausado")
+               AND f.hash_perceptual IS NOT NULL'
+        );
+        $stmt->execute([
+            ':doadora_id' => $doadoraId,
+            ':categoria_id' => $categoriaId,
+        ]);
+
+        $menorDistancia = PHP_INT_MAX;
+        foreach ($stmt->fetchAll() as $fotoExistente) {
+            foreach ($hashes as $hashNovo) {
+                $menorDistancia = min($menorDistancia, distancia_hamming_hash((string) $hashNovo, (string) $fotoExistente['hash_perceptual']));
+            }
+        }
+
+        if ($menorDistancia <= 5) {
+            return [
+                'tipo' => 'bloqueio',
+                'mensagem' => 'Encontramos uma foto muito parecida em outro item seu ja cadastrado. Edite o anuncio existente ou pause o item anterior antes de criar outro anuncio igual.',
+            ];
+        }
+
+        if ($menorDistancia <= 10) {
+            return [
+                'tipo' => 'alerta',
+                'mensagem' => 'Encontramos uma foto semelhante em outro anuncio seu. Verifique se nao e o mesmo item antes de continuar.',
+            ];
+        }
+
+        return null;
+    }
+
+    public static function bonusPublicacaoRecebidos(int $usuarioId): int
+    {
+        $stmt = db()->prepare(
+            'SELECT COUNT(*)
+             FROM transacoes_pontos
+             WHERE usuario_id = :usuario_id
+               AND tipo = "credito"
+               AND motivo LIKE "Bonus por item publicado%"'
+        );
+        $stmt->execute([':usuario_id' => $usuarioId]);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    private static function creditarBonusPublicacao(int $usuarioId, PDO $pdo): void
+    {
+        $stmtUsuario = $pdo->prepare('SELECT email_verificado_em FROM usuarios WHERE id = :id FOR UPDATE');
+        $stmtUsuario->execute([':id' => $usuarioId]);
+        $usuario = $stmtUsuario->fetch();
+
+        if (!$usuario || empty($usuario['email_verificado_em'])) {
+            return;
+        }
+
+        $stmtBonus = $pdo->prepare(
+            'SELECT COUNT(*)
+             FROM transacoes_pontos
+             WHERE usuario_id = :usuario_id
+               AND tipo = "credito"
+               AND motivo LIKE "Bonus por item publicado%"'
+        );
+        $stmtBonus->execute([':usuario_id' => $usuarioId]);
+        $bonusRecebidos = (int) $stmtBonus->fetchColumn();
+
+        if ($bonusRecebidos >= 3) {
+            return;
+        }
+
+        $pdo->prepare('UPDATE usuarios SET saldo_pontos = saldo_pontos + 5 WHERE id = :id')
+            ->execute([':id' => $usuarioId]);
+
+        $stmtTransacao = $pdo->prepare(
+            'INSERT INTO transacoes_pontos (usuario_id, tipo, quantidade, motivo)
+             VALUES (:usuario_id, "credito", 5, :motivo)'
+        );
+        $stmtTransacao->execute([
+            ':usuario_id' => $usuarioId,
+            ':motivo' => 'Bonus por item publicado ' . ($bonusRecebidos + 1) . '/3',
+        ]);
+    }
+
+    private static function itemFotosTemHashPerceptual(PDO $pdo): bool
+    {
+        static $temColuna = null;
+        if ($temColuna !== null) {
+            return $temColuna;
+        }
+
+        $stmt = $pdo->query("SHOW COLUMNS FROM item_fotos LIKE 'hash_perceptual'");
+        $temColuna = (bool) $stmt->fetch();
+
+        return $temColuna;
     }
 }

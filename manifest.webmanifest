@@ -1,0 +1,19 @@
+{
+  "name": "ReUse",
+  "short_name": "ReUse",
+  "description": "Rede de reuso para organizar doações, reservas e pontos com segurança.",
+  "start_url": "./login.php",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fbf6f8",
+  "theme_color": "#b45d7f",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./assets/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
