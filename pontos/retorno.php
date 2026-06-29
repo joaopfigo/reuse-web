@@ -10,6 +10,8 @@ $mensagem = 'Recebemos o retorno do pagamento.';
 $tipo = 'warning';
 $compraId = (int) ($_GET['compra_id'] ?? 0);
 $paymentId = (string) ($_GET['payment_id'] ?? $_GET['collection_id'] ?? '');
+$paymentId = in_array(strtolower($paymentId), ['', 'null', 'undefined'], true) ? '' : $paymentId;
+$erroTecnico = '';
 $compra = $compraId > 0 ? CompraPontosRepo::buscarPorIdEUsuario($compraId, (int) $usuario['id']) : null;
 
 if (!$compra) {
@@ -33,6 +35,7 @@ if (!$compra) {
         }
     } catch (Throwable $e) {
         $erro = 'Nao foi possivel confirmar o pagamento agora. O webhook ainda pode atualizar a compra automaticamente.';
+        $erroTecnico = $e->getMessage();
         error_log('[ReUse][mercadopago] Retorno: ' . $e->getMessage());
     }
 }
@@ -64,6 +67,12 @@ function dinheiro_retorno(float $valor): string
 
             <?php if ($erro): ?>
                 <div class="alert error"><?= e($erro) ?></div>
+                <?php if ($erroTecnico): ?>
+                    <div class="soft-note">
+                        <strong>Detalhe tecnico:</strong>
+                        <span><?= e($erroTecnico) ?></span>
+                    </div>
+                <?php endif; ?>
             <?php else: ?>
                 <div class="alert <?= e($tipo) ?>"><?= e($mensagem) ?></div>
 

@@ -147,13 +147,28 @@ class CompraPontosRepo
             ]);
 
             if ($statusCompra === 'aprovado' && $compra['status'] !== 'aprovado') {
-                $stmtDuplicidade = $pdo->prepare(
-                    'SELECT COUNT(*)
-                     FROM transacoes_pontos
-                     WHERE compra_pontos_id = :compra_pontos_id
-                       AND tipo = "credito"'
-                );
-                $stmtDuplicidade->execute([':compra_pontos_id' => $compra['id']]);
+                $temCompraPontosId = self::transacoesTemCompraPontosId($pdo);
+                if ($temCompraPontosId) {
+                    $stmtDuplicidade = $pdo->prepare(
+                        'SELECT COUNT(*)
+                         FROM transacoes_pontos
+                         WHERE compra_pontos_id = :compra_pontos_id
+                           AND tipo = "credito"'
+                    );
+                    $stmtDuplicidade->execute([':compra_pontos_id' => $compra['id']]);
+                } else {
+                    $stmtDuplicidade = $pdo->prepare(
+                        'SELECT COUNT(*)
+                         FROM transacoes_pontos
+                         WHERE usuario_id = :usuario_id
+                           AND tipo = "credito"
+                           AND motivo = :motivo'
+                    );
+                    $stmtDuplicidade->execute([
+                        ':usuario_id' => $compra['usuario_id'],
+                        ':motivo' => 'Compra de pontos aprovada #' . $compra['id'],
+                    ]);
+                }
 
                 if ((int) $stmtDuplicidade->fetchColumn() === 0) {
                     $pdo->prepare('UPDATE usuarios SET saldo_pontos = saldo_pontos + :pontos WHERE id = :id')
@@ -162,16 +177,28 @@ class CompraPontosRepo
                             ':id' => $compra['usuario_id'],
                         ]);
 
-                    $transacao = $pdo->prepare(
-                        'INSERT INTO transacoes_pontos (usuario_id, compra_pontos_id, tipo, quantidade, motivo)
-                         VALUES (:usuario_id, :compra_pontos_id, "credito", :quantidade, :motivo)'
-                    );
-                    $transacao->execute([
-                        ':usuario_id' => $compra['usuario_id'],
-                        ':compra_pontos_id' => $compra['id'],
-                        ':quantidade' => $compra['quantidade_pontos'],
-                        ':motivo' => 'Compra de pontos aprovada',
-                    ]);
+                    if ($temCompraPontosId) {
+                        $transacao = $pdo->prepare(
+                            'INSERT INTO transacoes_pontos (usuario_id, compra_pontos_id, tipo, quantidade, motivo)
+                             VALUES (:usuario_id, :compra_pontos_id, "credito", :quantidade, :motivo)'
+                        );
+                        $transacao->execute([
+                            ':usuario_id' => $compra['usuario_id'],
+                            ':compra_pontos_id' => $compra['id'],
+                            ':quantidade' => $compra['quantidade_pontos'],
+                            ':motivo' => 'Compra de pontos aprovada',
+                        ]);
+                    } else {
+                        $transacao = $pdo->prepare(
+                            'INSERT INTO transacoes_pontos (usuario_id, tipo, quantidade, motivo)
+                             VALUES (:usuario_id, "credito", :quantidade, :motivo)'
+                        );
+                        $transacao->execute([
+                            ':usuario_id' => $compra['usuario_id'],
+                            ':quantidade' => $compra['quantidade_pontos'],
+                            ':motivo' => 'Compra de pontos aprovada #' . $compra['id'],
+                        ]);
+                    }
                 }
             }
 
@@ -207,5 +234,18 @@ class CompraPontosRepo
             'refunded', 'charged_back' => 'estornado',
             default => 'pendente',
         };
+    }
+
+    private static function transacoesTemCompraPontosId(PDO $pdo): bool
+    {
+        static $temColuna = null;
+        if ($temColuna !== null) {
+            return $temColuna;
+        }
+
+        $stmt = $pdo->query("SHOW COLUMNS FROM transacoes_pontos LIKE 'compra_pontos_id'");
+        $temColuna = (bool) $stmt->fetch();
+
+        return $temColuna;
     }
 }
