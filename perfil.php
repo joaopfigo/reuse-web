@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <?php if (!conta_verificada($usuario)): ?>
             <div class="alert error">
-                Sua conta ainda esta no nivel basico. Confirme seu e-mail para publicar itens, fazer reservas e receber bonus nos 3 primeiros anuncios.
+                Sua conta ainda esta no nivel basico. Confirme seu e-mail para publicar itens e fazer reservas. Pontos entram por entregas confirmadas ou compra opcional.
                 <form method="post" action="<?= e(app_url('reenviar-confirmacao.php')) ?>" class="inline-form">
                     <?= csrf_input() ?>
                     <button class="btn secondary" type="submit">Reenviar confirmacao</button>

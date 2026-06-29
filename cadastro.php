@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="auth-feature">
                     <strong>Conta verificada</strong>
-                    <span>Depois de confirmar o e-mail, voce libera publicacoes, reservas e os bonus dos primeiros itens.</span>
+                    <span>Depois de confirmar o e-mail, voce libera publicacoes e reservas. Pontos entram por entregas confirmadas ou compra opcional.</span>
                 </div>
             </div>
         </section>

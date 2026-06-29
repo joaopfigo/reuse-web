@@ -53,13 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new RuntimeException($duplicidadeImagem['mensagem']);
         }
 
-        $bonusAntes = ItemRepo::bonusPublicacaoRecebidos((int) $usuario['id']);
         ItemRepo::criar($dados, $fotoPaths);
 
-        $sucesso = 'Item cadastrado com sucesso.';
-        if ($bonusAntes < 3) {
-            $sucesso .= ' Voce recebeu 5 pontos de bonus por publicar um dos seus 3 primeiros itens.';
-        }
+        $sucesso = 'Item cadastrado com sucesso. A publicacao nao gera pontos automaticamente; pontos entram por entregas confirmadas ou por compra aprovada.';
 
         $aviso = $duplicidadeTexto['mensagem'] ?? ($duplicidadeImagem['mensagem'] ?? '');
         $dados['titulo'] = '';

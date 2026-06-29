@@ -77,8 +77,6 @@ class ItemRepo
                 }
             }
 
-            self::creditarBonusPublicacao((int) $dados['doadora_id'], $pdo);
-
             $pdo->commit();
             return $itemId;
         } catch (Throwable $erro) {
@@ -398,57 +396,6 @@ class ItemRepo
         }
 
         return null;
-    }
-
-    public static function bonusPublicacaoRecebidos(int $usuarioId): int
-    {
-        $stmt = db()->prepare(
-            'SELECT COUNT(*)
-             FROM transacoes_pontos
-             WHERE usuario_id = :usuario_id
-               AND tipo = "credito"
-               AND motivo LIKE "Bonus por item publicado%"'
-        );
-        $stmt->execute([':usuario_id' => $usuarioId]);
-
-        return (int) $stmt->fetchColumn();
-    }
-
-    private static function creditarBonusPublicacao(int $usuarioId, PDO $pdo): void
-    {
-        $stmtUsuario = $pdo->prepare('SELECT email_verificado_em FROM usuarios WHERE id = :id FOR UPDATE');
-        $stmtUsuario->execute([':id' => $usuarioId]);
-        $usuario = $stmtUsuario->fetch();
-
-        if (!$usuario || empty($usuario['email_verificado_em'])) {
-            return;
-        }
-
-        $stmtBonus = $pdo->prepare(
-            'SELECT COUNT(*)
-             FROM transacoes_pontos
-             WHERE usuario_id = :usuario_id
-               AND tipo = "credito"
-               AND motivo LIKE "Bonus por item publicado%"'
-        );
-        $stmtBonus->execute([':usuario_id' => $usuarioId]);
-        $bonusRecebidos = (int) $stmtBonus->fetchColumn();
-
-        if ($bonusRecebidos >= 3) {
-            return;
-        }
-
-        $pdo->prepare('UPDATE usuarios SET saldo_pontos = saldo_pontos + 5 WHERE id = :id')
-            ->execute([':id' => $usuarioId]);
-
-        $stmtTransacao = $pdo->prepare(
-            'INSERT INTO transacoes_pontos (usuario_id, tipo, quantidade, motivo)
-             VALUES (:usuario_id, "credito", 5, :motivo)'
-        );
-        $stmtTransacao->execute([
-            ':usuario_id' => $usuarioId,
-            ':motivo' => 'Bonus por item publicado ' . ($bonusRecebidos + 1) . '/3',
-        ]);
     }
 
     private static function itemFotosTemHashPerceptual(PDO $pdo): bool

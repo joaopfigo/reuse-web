@@ -1,11 +1,13 @@
 <?php
 require_once __DIR__ . '/../app/helpers/auth.php';
 require_once __DIR__ . '/../app/helpers/layout.php';
+require_once __DIR__ . '/../app/repositories/CompraPontosRepo.php';
 require_once __DIR__ . '/../app/repositories/PontosRepo.php';
 require_once __DIR__ . '/../app/repositories/ReservaRepo.php';
 
 $usuario = exigir_login();
 $extrato = PontosRepo::extrato((int) $usuario['id']);
+$compras = CompraPontosRepo::listarPorUsuario((int) $usuario['id'], 5);
 $pontosReservados = ReservaRepo::pontosReservados((int) $usuario['id']);
 $saldoDisponivel = ReservaRepo::saldoDisponivel($usuario);
 $creditos = 0;
@@ -17,6 +19,11 @@ foreach ($extrato as $movimento) {
     } elseif (($movimento['tipo'] ?? '') === 'debito') {
         $debitos += (int) $movimento['quantidade'];
     }
+}
+
+function dinheiro_carteira(float $valor): string
+{
+    return 'R$ ' . number_format($valor, 2, ',', '.');
 }
 ?>
 <!DOCTYPE html>
@@ -35,10 +42,17 @@ foreach ($extrato as $movimento) {
         <section class="ops-hero">
             <div class="ops-hero-main">
                 <span class="ops-kicker">Carteira</span>
-                <h1 class="ops-title">Pontos e movimentações</h1>
-                <p class="ops-copy">Acompanhe quanto já entrou, quanto foi utilizado e o histórico completo das entregas confirmadas no sistema.</p>
+                <h1 class="ops-title">Pontos e movimentacoes</h1>
+                <p class="ops-copy">Acompanhe pontos recebidos por entregas confirmadas, compras aprovadas e usos em reservas concluidas.</p>
+            </div>
+            <div class="ops-hero-side">
+                <a class="btn primary" href="comprar.php">Comprar pontos</a>
             </div>
         </section>
+
+        <div class="alert warning">
+            Os itens continuam sendo doados por pontos. A compra de pontos e opcional; quando houver taxa de pagamento, ela ja aparece incluida no valor final antes da confirmacao.
+        </div>
 
         <section class="wallet-grid">
             <article class="wallet-card featured">
@@ -47,14 +61,14 @@ foreach ($extrato as $movimento) {
                 <p class="wallet-note">saldo total da conta</p>
             </article>
             <article class="wallet-card">
-                <span class="wallet-label">Disponível para reservar</span>
+                <span class="wallet-label">Disponivel para reservar</span>
                 <strong class="wallet-value"><?= $saldoDisponivel ?></strong>
                 <p class="wallet-note"><?= $pontosReservados ?> ponto(s) comprometidos em reservas ativas</p>
             </article>
             <article class="wallet-card">
                 <span class="wallet-label">Pontos recebidos</span>
                 <strong class="wallet-value">+<?= $creditos ?></strong>
-                <p class="wallet-note">somados às entregas concluídas</p>
+                <p class="wallet-note">entregas confirmadas e compras aprovadas</p>
             </article>
             <article class="wallet-card">
                 <span class="wallet-label">Pontos usados</span>
@@ -65,12 +79,35 @@ foreach ($extrato as $movimento) {
 
         <section class="surface-panel">
             <div class="section-header">
+                <h2>Compras de pontos</h2>
+                <p>Pagamentos pendentes, recusados ou cancelados nao geram credito na carteira.</p>
+            </div>
+
+            <?php if (!$compras): ?>
+                <div class="empty-card">Nenhuma compra registrada ainda.</div>
+            <?php endif; ?>
+
+            <div class="ledger-list">
+                <?php foreach ($compras as $compra): ?>
+                    <article class="ledger-item">
+                        <div class="transacao-info">
+                            <p class="transacao-valor"><?= (int) $compra['quantidade_pontos'] ?> pontos - <?= e(dinheiro_carteira((float) $compra['valor_total'])) ?></p>
+                            <p class="muted">Status: <?= e(CompraPontosRepo::statusLabel((string) $compra['status'])) ?></p>
+                            <small class="muted"><?= e(formatar_data_hora($compra['criado_em'])) ?></small>
+                        </div>
+                    </article>
+                <?php endforeach; ?>
+            </div>
+        </section>
+
+        <section class="surface-panel">
+            <div class="section-header">
                 <h2>Extrato</h2>
-                <p>Veja a ordem das movimentações e identifique rapidamente de onde veio cada crédito ou débito.</p>
+                <p>Veja a ordem das movimentacoes e identifique rapidamente de onde veio cada credito ou debito.</p>
             </div>
 
             <?php if (!$extrato): ?>
-                <div class="empty-card">Nenhuma movimentação registrada ainda.</div>
+                <div class="empty-card">Nenhuma movimentacao registrada ainda.</div>
             <?php endif; ?>
 
             <div class="ledger-list">

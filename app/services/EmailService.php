@@ -16,10 +16,13 @@ class EmailService
         if (self::carregarPhpMailer()) {
             try {
                 return self::enviarComPhpMailer($destinatario, $nome, $assunto, $mensagemHtml, $mensagemTexto);
-            } catch (Throwable) {
+            } catch (Throwable $erro) {
+                error_log('[ReUse][email] Falha PHPMailer: ' . $erro->getMessage());
                 return false;
             }
         }
+
+        error_log('[ReUse][email] PHPMailer nao foi carregado. Tentando mail() do PHP.');
 
         $headers = [
             'MIME-Version: 1.0',
@@ -56,6 +59,7 @@ class EmailService
     ): bool {
         $config = self::configSmtp();
         if (!$config) {
+            error_log('[ReUse][email] Arquivo private_config/mail.credentials.php ausente ou invalido.');
             return false;
         }
 
@@ -76,7 +80,12 @@ class EmailService
         $mail->Body = $mensagemHtml;
         $mail->AltBody = $mensagemTexto;
 
-        return $mail->send();
+        $enviado = $mail->send();
+        if (!$enviado) {
+            error_log('[ReUse][email] PHPMailer retornou false: ' . $mail->ErrorInfo);
+        }
+
+        return $enviado;
     }
 
     private static function configSmtp(): ?array
