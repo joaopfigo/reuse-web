@@ -127,23 +127,21 @@ class CompraPontosRepo
             $paymentId = isset($pagamento['id']) ? (string) $pagamento['id'] : null;
             $statusDetail = isset($pagamento['status_detail']) ? (string) $pagamento['status_detail'] : null;
 
-            $stmtUpdate = $pdo->prepare(
-                'UPDATE compras_pontos
+            $sqlUpdate = 'UPDATE compras_pontos
                  SET status = :status,
                      mercado_pago_payment_id = COALESCE(:payment_id, mercado_pago_payment_id),
                      mercado_pago_status = :mercado_pago_status,
                      mercado_pago_status_detail = :status_detail,
-                     aprovado_em = CASE WHEN :status_aprovado = "aprovado" THEN COALESCE(aprovado_em, NOW()) ELSE aprovado_em END,
+                     aprovado_em = ' . ($statusCompra === 'aprovado' ? 'COALESCE(aprovado_em, NOW())' : 'aprovado_em') . ',
                      atualizado_em = NOW()
-                 WHERE id = :id'
-            );
+                 WHERE id = :id';
+            $stmtUpdate = $pdo->prepare($sqlUpdate);
             $stmtUpdate->execute([
                 ':id' => $compra['id'],
                 ':status' => $statusCompra,
                 ':payment_id' => $paymentId,
                 ':mercado_pago_status' => $statusPagamento,
                 ':status_detail' => $statusDetail,
-                ':status_aprovado' => $statusCompra,
             ]);
 
             if ($statusCompra === 'aprovado' && $compra['status'] !== 'aprovado') {
