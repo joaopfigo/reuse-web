@@ -20,9 +20,12 @@ $positivas = AvaliacaoRepo::positivas($perfilId);
 $denuncias = DenunciaRepo::estatisticasPublicas($perfilId);
 $media = $perfil['avaliacao_media'] ?? null;
 $totalAvaliacoes = count($avaliacoes);
-$selo = ((int) $perfil['itens_doados'] >= 3 && (int) $perfil['denuncias_recebidas'] === 0 && (int) $perfil['no_show_count'] === 0)
-    ? 'Perfil com bom histórico'
-    : 'Perfil em construção';
+$itensDoados = (int) ($perfil['itens_doados'] ?? 0);
+$noShows = (int) ($perfil['no_show_count'] ?? 0);
+$totalDenuncias = (int) ($denuncias['total'] ?? 0);
+$contaVerificada = !empty($perfil['email_verificado_em']);
+$contaConfiavel = $contaVerificada && $itensDoados >= 3 && $noShows <= 1 && $totalDenuncias === 0 && ($media === null || (float) $media >= 4.0);
+$seloPrincipal = $contaConfiavel ? 'Conta confiável' : ($contaVerificada ? 'Conta verificada' : 'Perfil em construção');
 
 function motivo_denuncia_label(string $motivo): string
 {
@@ -42,7 +45,7 @@ function motivo_denuncia_label(string $motivo): string
     <title>ReUse | Perfil público</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/experience.css?v=20260624">
-    <?= pwa_head_tags() ?>
+    <?= favicon_head_tags() ?>
 </head>
 <body>
     <?php render_topbar($usuario); ?>
@@ -52,7 +55,7 @@ function motivo_denuncia_label(string $motivo): string
             <div class="ops-hero-main">
                 <span class="ops-kicker">Perfil público</span>
                 <h1 class="ops-title"><?= e($perfil['nome']) ?></h1>
-                <p class="ops-copy"><?= e($perfil['bairro']) ?>, <?= e($perfil['cidade']) ?> · <?= e($selo) ?></p>
+                <p class="ops-copy"><?= e($perfil['bairro']) ?>, <?= e($perfil['cidade']) ?> · <?= e($seloPrincipal) ?></p>
             </div>
             <div class="ops-hero-side">
                 <div class="ops-side-card">
@@ -62,11 +65,26 @@ function motivo_denuncia_label(string $motivo): string
             </div>
         </section>
 
+        <section class="trust-badge-grid">
+            <article class="trust-badge <?= $contaVerificada ? 'is-positive' : '' ?>">
+                <strong>Conta verificada</strong>
+                <span><?= $contaVerificada ? 'E-mail confirmado' : 'Ainda sem confirmação pública' ?></span>
+            </article>
+            <article class="trust-badge <?= $contaConfiavel ? 'is-positive' : '' ?>">
+                <strong>Conta confiável</strong>
+                <span><?= $contaConfiavel ? 'Histórico consistente de entregas' : 'Selo liberado com histórico positivo' ?></span>
+            </article>
+            <article class="trust-badge <?= $itensDoados > 0 ? 'is-positive' : '' ?>">
+                <strong>Entrega concluída</strong>
+                <span><?= $itensDoados ?> item(ns) doado(s) com confirmação</span>
+            </article>
+        </section>
+
         <section class="wallet-grid">
             <article class="wallet-card featured">
                 <span class="wallet-label">Itens doados</span>
-                <strong class="wallet-value"><?= (int) $perfil['itens_doados'] ?></strong>
-                <p class="wallet-note">entregas confirmadas</p>
+                <strong class="wallet-value"><?= $itensDoados ?></strong>
+                <p class="wallet-note">entregas confirmadas como doador(a)</p>
             </article>
             <article class="wallet-card">
                 <span class="wallet-label">Itens recebidos</span>
@@ -75,13 +93,13 @@ function motivo_denuncia_label(string $motivo): string
             </article>
             <article class="wallet-card">
                 <span class="wallet-label">Não comparecimentos</span>
-                <strong class="wallet-value"><?= (int) $perfil['no_show_count'] ?></strong>
+                <strong class="wallet-value"><?= $noShows ?></strong>
                 <p class="wallet-note">registro(s) no histórico</p>
             </article>
             <article class="wallet-card">
                 <span class="wallet-label">Alertas de segurança</span>
-                <strong class="wallet-value"><?= (int) $denuncias['total'] ?></strong>
-                <p class="wallet-note">denúncia(s) registradas para análise</p>
+                <strong class="wallet-value"><?= $totalDenuncias ?></strong>
+                <p class="wallet-note">denúncia(s) agregadas para análise</p>
             </article>
         </section>
 
@@ -94,7 +112,10 @@ function motivo_denuncia_label(string $motivo): string
                     </div>
 
                     <?php if (!$positivas): ?>
-                        <div class="empty-card">Ainda não há feedbacks positivos registrados.</div>
+                        <div class="empty-card">
+                            <strong>Ainda sem feedbacks positivos.</strong>
+                            <span>Quando entregas forem avaliadas, os melhores comentários aparecerão aqui.</span>
+                        </div>
                     <?php endif; ?>
 
                     <div class="feedback-list">
@@ -128,16 +149,20 @@ function motivo_denuncia_label(string $motivo): string
                             <span class="donor-stat-label">Localidade aproximada</span>
                             <strong class="donor-stat-value"><?= e($perfil['bairro']) ?>, <?= e($perfil['cidade']) ?></strong>
                         </div>
+                        <div class="donor-stat">
+                            <span class="donor-stat-label">Selo atual</span>
+                            <strong class="donor-stat-value"><?= e($seloPrincipal) ?></strong>
+                        </div>
                     </div>
                 </section>
 
                 <section class="surface-panel">
                     <div class="section-header">
                         <h2>Denúncias registradas</h2>
-                        <p>Os dados abaixo são indicadores agregados. O conteúdo dos relatos não é exposto publicamente.</p>
+                        <p>Indicadores agregados de segurança. O conteúdo dos relatos não é exposto publicamente.</p>
                     </div>
 
-                    <?php if (!$denuncias['motivos']): ?>
+                    <?php if (empty($denuncias['motivos'])): ?>
                         <div class="soft-note">Nenhuma denúncia registrada contra este perfil.</div>
                     <?php else: ?>
                         <div class="impact-list clean">

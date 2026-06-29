@@ -1,4 +1,12 @@
 <?php
+$debugPath = dirname(__DIR__) . '/private_config/debug.php';
+$debugConfig = is_file($debugPath) ? require $debugPath : [];
+
+if (!is_array($debugConfig) || empty($debugConfig['email_diagnostics'])) {
+    http_response_code(404);
+    exit('Pagina nao encontrada.');
+}
+
 require_once __DIR__ . '/app/helpers/auth.php';
 require_once __DIR__ . '/app/helpers/layout.php';
 require_once __DIR__ . '/app/services/EmailService.php';
@@ -28,6 +36,7 @@ function sim_nao(bool $valor): string
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?= favicon_head_tags() ?>
     <title>ReUse | Diagnostico de e-mail</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/experience.css?v=20260624">

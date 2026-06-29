@@ -26,6 +26,7 @@ function render_topbar(array $usuario): void
             <a href="<?= e(app_url('reservas/minhas.php')) ?>">Minhas reservas</a>
             <a href="<?= e(app_url('pontos/carteira.php')) ?>">Pontos</a>
             <a href="<?= e(app_url('impacto/painel.php')) ?>">Impacto</a>
+            <a href="<?= e(app_url('seguranca.php')) ?>">Segurança</a>
             <a href="<?= e(app_url('notificacoes/index.php')) ?>">
                 Notificações<?php if ($naoLidas > 0): ?><span class="notif-badge"><?= $naoLidas ?></span><?php endif; ?>
             </a>
@@ -37,7 +38,7 @@ function render_topbar(array $usuario): void
             </form>
         </nav>
     </header>
-    <script src="<?= e(app_url('assets/js/app.js?v=20260624')) ?>" defer></script>
+    <script src="<?= e(app_url('assets/js/app.js?v=20260629')) ?>" defer></script>
     <script src="<?= e(app_url('assets/js/pwa.js?v=20260624')) ?>" defer></script>
     <?php
 }

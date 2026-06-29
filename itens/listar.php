@@ -46,6 +46,7 @@ $queryPaginacao = array_filter([
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?= favicon_head_tags() ?>
     <title>ReUse | Itens</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/experience.css?v=20260624">
@@ -160,12 +161,13 @@ $queryPaginacao = array_filter([
                 <section class="items-grid">
                     <?php foreach ($itens as $item): ?>
                         <article class="item-card">
-                            <div class="item-photo">
-                                <?php if ($item['foto']): ?>
-                                    <img src="../<?= e($item['foto']) ?>" alt="Foto de <?= e($item['titulo']) ?>">
-                                <?php else: ?>
-                                    Sem foto
-                                <?php endif; ?>
+                            <div class="item-photo" data-image-frame>
+                                <img
+                                    src="<?= e(item_foto_url($item['foto'] ?? null)) ?>"
+                                    data-fallback-src="<?= e(item_foto_fallback_url()) ?>"
+                                    alt="Foto de <?= e($item['titulo']) ?>"
+                                    loading="lazy"
+                                    decoding="async">
                             </div>
                             <div class="item-body">
                                 <h2><?= e($item['titulo']) ?></h2>

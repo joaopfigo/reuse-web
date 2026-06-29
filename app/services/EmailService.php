@@ -22,6 +22,22 @@ class EmailService
         );
     }
 
+    public static function enviarRedefinicaoSenha(string $destinatario, string $nome, string $link): bool
+    {
+        self::$ultimoErro = '';
+
+        return self::enviar(
+            $destinatario,
+            $nome,
+            'Redefinicao de senha no ReUse',
+            '<p>Ola, ' . htmlspecialchars($nome, ENT_QUOTES, 'UTF-8') . '.</p>'
+                . '<p>Recebemos uma solicitacao para redefinir sua senha no ReUse.</p>'
+                . '<p><a href="' . htmlspecialchars($link, ENT_QUOTES, 'UTF-8') . '">Criar nova senha</a></p>'
+                . '<p>Este link expira em 1 hora. Se voce nao solicitou, ignore esta mensagem.</p>',
+            "Ola, {$nome}.\n\nRecebemos uma solicitacao para redefinir sua senha no ReUse:\n{$link}\n\nEste link expira em 1 hora. Se voce nao solicitou, ignore esta mensagem."
+        );
+    }
+
     public static function enviarTeste(string $destinatario, string $nome): bool
     {
         self::$ultimoErro = '';

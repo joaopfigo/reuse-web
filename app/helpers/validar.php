@@ -62,7 +62,21 @@ function similaridade_texto_item(string $a, string $b): float
 
 function salvar_upload_item(array $arquivo): ?array
 {
-    return salvar_upload_imagem($arquivo, __DIR__ . '/../../uploads/itens', 'uploads/itens', 2 * 1024 * 1024);
+    [$dir, $pathPublico] = diretorio_upload_item();
+
+    return salvar_upload_imagem($arquivo, $dir, $pathPublico, 2 * 1024 * 1024);
+}
+
+function diretorio_upload_item(): array
+{
+    $privateBase = dirname(__DIR__, 3) . '/private_uploads';
+    $privateDir = $privateBase . '/itens';
+
+    if ((is_dir($privateDir) || @mkdir($privateDir, 0755, true)) && is_writable($privateDir)) {
+        return [$privateDir, 'private_uploads/itens'];
+    }
+
+    return [__DIR__ . '/../../uploads/itens', 'uploads/itens'];
 }
 
 function salvar_uploads_item(array $arquivos): array
@@ -113,10 +127,34 @@ function remover_uploads_item(array $fotos): void
             continue;
         }
 
-        $absoluto = realpath(__DIR__ . '/../../' . ltrim($caminho, '/'));
-        $base = realpath(__DIR__ . '/../../uploads/itens');
+        $relativo = ltrim(str_replace('\\', '/', $caminho), '/');
+        $absoluto = false;
+        foreach ([__DIR__ . '/../../' . $relativo, dirname(__DIR__, 3) . '/' . $relativo] as $candidato) {
+            $resolvido = realpath($candidato);
+            if ($resolvido) {
+                $absoluto = $resolvido;
+                break;
+            }
+        }
 
-        if ($absoluto && $base && str_starts_with($absoluto, $base) && is_file($absoluto)) {
+        if (!$absoluto) {
+            continue;
+        }
+
+        $bases = array_filter([
+            realpath(__DIR__ . '/../../uploads/itens'),
+            realpath(dirname(__DIR__, 3) . '/private_uploads/itens'),
+        ]);
+
+        $permitido = false;
+        foreach ($bases as $base) {
+            if (str_starts_with($absoluto, $base)) {
+                $permitido = true;
+                break;
+            }
+        }
+
+        if ($absoluto && $permitido && is_file($absoluto)) {
             unlink($absoluto);
         }
     }
@@ -169,17 +207,92 @@ function salvar_upload_imagem(array $arquivo, string $dir, string $pathPublico, 
         mkdir($dir, 0755, true);
     }
 
-    $nome = bin2hex(random_bytes(16)) . '.' . $permitidos[$mime];
-    $destino = $dir . '/' . $nome;
+    $nomeBase = bin2hex(random_bytes(16));
+    $mimeFinal = $mime;
+    $salvouOtimizada = false;
 
-    if (!move_uploaded_file($arquivo['tmp_name'], $destino)) {
-        throw new RuntimeException('Nao foi possivel salvar a imagem.');
+    if (extension_loaded('gd')) {
+        $destinoOtimizado = $dir . '/' . $nomeBase . '.jpg';
+        $salvouOtimizada = salvar_imagem_jpeg_otimizada($arquivo['tmp_name'], $destinoOtimizado, $mime);
+        if ($salvouOtimizada) {
+            $destino = $destinoOtimizado;
+            $mimeFinal = 'image/jpeg';
+        }
+    }
+
+    if (!$salvouOtimizada) {
+        $destino = $dir . '/' . $nomeBase . '.' . $permitidos[$mime];
+        if (!move_uploaded_file($arquivo['tmp_name'], $destino)) {
+            throw new RuntimeException('Nao foi possivel salvar a imagem.');
+        }
     }
 
     return [
-        'caminho' => rtrim($pathPublico, '/') . '/' . $nome,
-        'hash_perceptual' => hash_perceptual_imagem($destino, $mime),
+        'caminho' => rtrim($pathPublico, '/') . '/' . basename($destino),
+        'hash_perceptual' => hash_perceptual_imagem($destino, $mimeFinal),
     ];
+}
+
+function salvar_imagem_jpeg_otimizada(string $origem, string $destino, string $mime): bool
+{
+    $imagem = match ($mime) {
+        'image/jpeg' => @imagecreatefromjpeg($origem),
+        'image/png' => @imagecreatefrompng($origem),
+        'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($origem) : false,
+        default => false,
+    };
+
+    if (!$imagem) {
+        return false;
+    }
+
+    if ($mime === 'image/jpeg') {
+        $imagem = corrigir_orientacao_jpeg($imagem, $origem);
+    }
+
+    $larguraOriginal = imagesx($imagem);
+    $alturaOriginal = imagesy($imagem);
+    $maiorLado = max($larguraOriginal, $alturaOriginal);
+    $limiteLado = 1600;
+    $escala = $maiorLado > $limiteLado ? ($limiteLado / $maiorLado) : 1;
+    $largura = max(1, (int) round($larguraOriginal * $escala));
+    $altura = max(1, (int) round($alturaOriginal * $escala));
+
+    $saida = imagecreatetruecolor($largura, $altura);
+    $fundo = imagecolorallocate($saida, 255, 255, 255);
+    imagefill($saida, 0, 0, $fundo);
+    imagecopyresampled($saida, $imagem, 0, 0, 0, 0, $largura, $altura, $larguraOriginal, $alturaOriginal);
+    imageinterlace($saida, true);
+
+    $ok = imagejpeg($saida, $destino, 84);
+
+    imagedestroy($saida);
+    imagedestroy($imagem);
+
+    return $ok;
+}
+
+function corrigir_orientacao_jpeg($imagem, string $arquivo)
+{
+    if (!function_exists('exif_read_data')) {
+        return $imagem;
+    }
+
+    $exif = @exif_read_data($arquivo);
+    $orientacao = is_array($exif) ? (int) ($exif['Orientation'] ?? 1) : 1;
+    $rotacionada = match ($orientacao) {
+        3 => imagerotate($imagem, 180, 0),
+        6 => imagerotate($imagem, -90, 0),
+        8 => imagerotate($imagem, 90, 0),
+        default => false,
+    };
+
+    if (!$rotacionada) {
+        return $imagem;
+    }
+
+    imagedestroy($imagem);
+    return $rotacionada;
 }
 
 function hash_perceptual_imagem(string $arquivo, ?string $mime = null): ?string

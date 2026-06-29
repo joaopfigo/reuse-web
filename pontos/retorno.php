@@ -12,6 +12,9 @@ $compraId = (int) ($_GET['compra_id'] ?? 0);
 $paymentId = (string) ($_GET['payment_id'] ?? $_GET['collection_id'] ?? '');
 $paymentId = in_array(strtolower($paymentId), ['', 'null', 'undefined'], true) ? '' : $paymentId;
 $erroTecnico = '';
+$debugPath = dirname(__DIR__, 2) . '/private_config/debug.php';
+$debugConfig = is_file($debugPath) ? require $debugPath : [];
+$mostrarErroTecnico = is_array($debugConfig) && !empty($debugConfig['payment_diagnostics']);
 $compra = $compraId > 0 ? CompraPontosRepo::buscarPorIdEUsuario($compraId, (int) $usuario['id']) : null;
 
 if (!$compra) {
@@ -50,6 +53,7 @@ function dinheiro_retorno(float $valor): string
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?= favicon_head_tags() ?>
     <title>ReUse | Retorno do pagamento</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/experience.css?v=20260624">
@@ -67,7 +71,7 @@ function dinheiro_retorno(float $valor): string
 
             <?php if ($erro): ?>
                 <div class="alert error"><?= e($erro) ?></div>
-                <?php if ($erroTecnico): ?>
+                <?php if ($erroTecnico && $mostrarErroTecnico): ?>
                     <div class="soft-note">
                         <strong>Detalhe tecnico:</strong>
                         <span><?= e($erroTecnico) ?></span>

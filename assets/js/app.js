@@ -31,6 +31,36 @@
 })();
 
 (function () {
+  const images = document.querySelectorAll('img[data-fallback-src]');
+
+  images.forEach((image) => {
+    const frame = image.closest('[data-image-frame]');
+    const markLoaded = () => {
+      frame?.classList.add('is-loaded');
+      frame?.classList.remove('is-missing');
+    };
+
+    image.addEventListener('load', markLoaded);
+
+    image.addEventListener('error', () => {
+      if (image.dataset.fallbackApplied === '1') {
+        frame?.classList.add('is-missing');
+        return;
+      }
+
+      image.dataset.fallbackApplied = '1';
+      image.src = image.dataset.fallbackSrc;
+      image.classList.add('image-fallback');
+      frame?.classList.add('is-missing');
+    });
+
+    if (image.complete && image.naturalWidth > 0) {
+      markLoaded();
+    }
+  });
+})();
+
+(function () {
   const chat = document.querySelector('.chat-messages');
   if (chat) {
     chat.scrollTop = chat.scrollHeight;

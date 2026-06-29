@@ -140,7 +140,7 @@ class MercadoPagoService
 
         if ($statusHttp < 200 || $statusHttp >= 300) {
             $mensagem = $dados['message'] ?? $dados['error'] ?? 'Erro na API do Mercado Pago.';
-            error_log('[ReUse][mercadopago] HTTP ' . $statusHttp . ': ' . $resposta);
+            error_log('[ReUse][mercadopago] HTTP ' . $statusHttp . ': ' . $mensagem);
             throw new RuntimeException('Mercado Pago recusou a operacao: ' . $mensagem);
         }
 

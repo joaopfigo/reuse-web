@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/app/helpers/auth.php';
 require_once __DIR__ . '/app/repositories/UsuarioRepo.php';
+require_once __DIR__ . '/app/services/EmailService.php';
 
 redirecionar_se_logado();
 
@@ -24,22 +25,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         )->execute([':id' => $usuario['id'], ':token' => $tokenHash, ':expira' => $expira]);
 
         $protocolo = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $link = $protocolo . '://' . $_SERVER['HTTP_HOST'] . app_url('redefinir-senha.php') . '?token=' . $token;
-        $host = preg_replace('/:\d+$/', '', (string) ($_SERVER['HTTP_HOST'] ?? 'reuse.local'));
-        $dominioEmail = preg_replace('/^www\./', '', $host);
-        $remetente = filter_var('no-reply@' . $dominioEmail, FILTER_VALIDATE_EMAIL)
-            ? 'no-reply@' . $dominioEmail
-            : 'noreply@reuse.local';
-
-        @mail(
-            $usuario['email'],
-            'ReUse - Redefinição de senha',
-            "Clique no link para redefinir sua senha:\n\n{$link}\n\nO link expira em 1 hora.",
-            'From: ' . $remetente
-        );
+        $link = $protocolo . '://' . $_SERVER['HTTP_HOST'] . app_url('redefinir-senha.php') . '?token=' . urlencode($token);
+        EmailService::enviarRedefinicaoSenha((string) $usuario['email'], (string) $usuario['nome'], $link);
     }
 
-    $mensagem = 'Se o e-mail estiver cadastrado, um link de redefinição foi enviado.';
+    $mensagem = 'Se o e-mail estiver cadastrado, um link de redefinicao foi enviado.';
 }
 ?>
 <!DOCTYPE html>
@@ -57,13 +47,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <section class="auth-showcase">
             <span class="hero-tag">Acesso seguro</span>
             <h1>Recupere sua conta sem expor seus dados.</h1>
-            <p>Enviaremos um link temporário para o e-mail cadastrado, sem revelar se a conta existe ou não.</p>
+            <p>Enviaremos um link temporario para o e-mail cadastrado, sem revelar se a conta existe ou nao.</p>
         </section>
 
         <form method="post" class="auth-panel">
             <div class="section-header">
                 <h2>Esqueci minha senha</h2>
-                <p>Digite o e-mail usado no cadastro para receber as instruções de redefinição.</p>
+                <p>Digite o e-mail usado no cadastro para receber as instrucoes de redefinicao.</p>
             </div>
             <?= csrf_input() ?>
             <?php if ($mensagem): ?>

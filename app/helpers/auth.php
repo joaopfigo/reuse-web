@@ -77,14 +77,66 @@ function csrf_input(): string
     return '<input type="hidden" name="csrf_token" value="' . e(csrf_token()) . '">';
 }
 
+function favicon_head_tags(): string
+{
+    return '<link rel="icon" href="' . e(app_url('favicon.svg')) . '" type="image/svg+xml">' . PHP_EOL
+        . '    <link rel="shortcut icon" href="' . e(app_url('favicon.svg')) . '" type="image/svg+xml">' . PHP_EOL
+        . '    <link rel="apple-touch-icon" href="' . e(app_url('assets/icons/icon.svg')) . '">';
+}
+
 function pwa_head_tags(): string
 {
-    return '<link rel="manifest" href="' . e(app_url('manifest.webmanifest')) . '">' . PHP_EOL
+    return favicon_head_tags() . PHP_EOL
+        . '    <link rel="manifest" href="' . e(app_url('manifest.webmanifest')) . '">' . PHP_EOL
         . '    <meta name="theme-color" content="#b45d7f">' . PHP_EOL
         . '    <meta name="apple-mobile-web-app-capable" content="yes">' . PHP_EOL
         . '    <meta name="apple-mobile-web-app-title" content="ReUse">' . PHP_EOL
-        . '    <link rel="apple-touch-icon" href="' . e(app_url('assets/icons/icon.svg')) . '">' . PHP_EOL
         . '    <script src="' . e(app_url('assets/js/pwa.js?v=20260624')) . '" defer></script>';
+}
+
+function media_public_path(?string $path): ?string
+{
+    $path = trim((string) $path);
+    if ($path === '') {
+        return null;
+    }
+
+    $parsedPath = parse_url($path, PHP_URL_PATH);
+    $path = $parsedPath !== null && $parsedPath !== false ? $parsedPath : $path;
+    $path = str_replace('\\', '/', $path);
+    $path = preg_replace('#/+#', '/', $path) ?? $path;
+    $path = ltrim($path, '/');
+
+    while (str_starts_with($path, '../') || str_starts_with($path, './')) {
+        $path = str_starts_with($path, '../') ? substr($path, 3) : substr($path, 2);
+    }
+
+    foreach (['public_html/', 'src/'] as $prefix) {
+        if (str_starts_with($path, $prefix)) {
+            $path = substr($path, strlen($prefix));
+        }
+    }
+
+    if ($path === '' || str_contains($path, '..')) {
+        return null;
+    }
+
+    return $path;
+}
+
+function item_foto_fallback_url(): string
+{
+    return app_url('assets/img/item-placeholder.svg');
+}
+
+function item_foto_url(?string $path): string
+{
+    $publicPath = media_public_path($path);
+    if ($publicPath === null) {
+        return item_foto_fallback_url();
+    }
+
+    return app_url('imagem.php?src=' . rawurlencode($publicPath));
 }
 
 function validar_csrf_post(): void

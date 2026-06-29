@@ -25,6 +25,7 @@ $seloConfianca = $itensDoados >= 3 && $noShows === 0 ? 'Conta confiável' : 'Per
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?= favicon_head_tags() ?>
     <title>ReUse | Detalhe do item</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/experience.css?v=20260624">
@@ -49,18 +50,33 @@ $seloConfianca = $itensDoados >= 3 && $noShows === 0 ? 'Conta confiável' : 'Per
 
             <section class="detail-layout">
                 <div class="detail-main">
-                    <div class="detail-image-frame">
+                    <div class="detail-image-frame" data-image-frame>
                         <?php if ($fotos): ?>
-                            <img src="../<?= e($fotos[0]['caminho']) ?>" alt="Foto de <?= e($item['titulo']) ?>">
+                            <img
+                                src="<?= e(item_foto_url($fotos[0]['caminho'] ?? null)) ?>"
+                                data-fallback-src="<?= e(item_foto_fallback_url()) ?>"
+                                alt="Foto de <?= e($item['titulo']) ?>"
+                                loading="eager"
+                                decoding="async"
+                                fetchpriority="high">
                         <?php else: ?>
-                            <div class="detail-placeholder">Sem foto disponível</div>
+                            <img
+                                src="<?= e(item_foto_fallback_url()) ?>"
+                                alt="Foto indisponível para <?= e($item['titulo']) ?>"
+                                loading="eager"
+                                decoding="async">
                         <?php endif; ?>
                     </div>
 
                     <?php if (count($fotos) > 1): ?>
                         <div class="detail-thumb-grid">
                             <?php foreach ($fotos as $foto): ?>
-                                <img src="../<?= e($foto['caminho']) ?>" alt="Foto adicional de <?= e($item['titulo']) ?>">
+                                <img
+                                    src="<?= e(item_foto_url($foto['caminho'] ?? null)) ?>"
+                                    data-fallback-src="<?= e(item_foto_fallback_url()) ?>"
+                                    alt="Foto adicional de <?= e($item['titulo']) ?>"
+                                    loading="lazy"
+                                    decoding="async">
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>

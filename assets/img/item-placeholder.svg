@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-label="Imagem indisponivel" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff7fa"/>
+      <stop offset="0.56" stop-color="#f4e5ec"/>
+      <stop offset="1" stop-color="#e8f1ec"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#fff7fb" stop-opacity="0.84"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="620" fill="url(#bg)"/>
+  <circle cx="744" cy="94" r="160" fill="#b45d7f" opacity="0.08"/>
+  <circle cx="105" cy="530" r="190" fill="#2f8d6a" opacity="0.08"/>
+  <rect x="292" y="166" width="316" height="250" rx="34" fill="url(#card)" stroke="#ead6df" stroke-width="5"/>
+  <path d="M346 355l76-82 58 60 40-42 66 64" fill="none" stroke="#b45d7f" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="516" cy="246" r="28" fill="#e4a574"/>
+  <path d="M363 450h174" stroke="#7a3650" stroke-width="18" stroke-linecap="round" opacity="0.45"/>
+  <text x="450" y="506" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="800" fill="#7a3650">Foto indisponivel</text>
+  <text x="450" y="548" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="600" fill="#947887">ReUse</text>
+</svg>
