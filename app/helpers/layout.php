@@ -31,8 +31,7 @@ function render_topbar(array $usuario): void
                 Notificações<?php if ($naoLidas > 0): ?><span class="notif-badge"><?= $naoLidas ?></span><?php endif; ?>
             </a>
             <a href="<?= e(app_url('perfil.php')) ?>">Perfil</a>
-            <span class="muted"><?= e($usuario['nome']) ?></span>
-            <form method="post" action="<?= e(app_url('logout.php')) ?>" class="inline-form">
+            <form method="post" action="<?= e(app_url('logout.php')) ?>" class="inline-form topbar-logout">
                 <?= csrf_input() ?>
                 <button class="btn danger" type="submit">Sair</button>
             </form>
